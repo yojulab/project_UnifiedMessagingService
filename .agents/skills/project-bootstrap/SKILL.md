@@ -40,10 +40,10 @@ npx playwright install --with-deps chromium
 MONGODB_URI=mongodb://host.docker.internal:27017
 MONGODB_DBNAME=UnifiedMessagingService_dev
 NEXTAUTH_SECRET=dev-secret-change-in-production-32chars
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3110
 ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 NEXT_PUBLIC_APP_NAME=통합 메시징 서비스
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=http://localhost:3110
 ```
 
 ## Step 4: MongoDB 연결 싱글턴 구현
@@ -134,7 +134,7 @@ export const commonCodeSeeds = [
 
 ## 완료 조건 체크리스트
 
-- [ ] `npm run dev` 정상 기동 (포트 3000)
+- [ ] `npm run build && npm start` 정상 기동 (포트 3110)
 - [ ] MongoDB 연결 성공 (콘솔 로그 확인)
 - [ ] 회원가입 → 로그인 → 대시보드 진입 플로우 동작
 - [ ] CommonCode 시드 데이터 DB 적재 완료

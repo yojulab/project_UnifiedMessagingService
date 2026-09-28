@@ -1,0 +1,22 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "eslint.useFlatConfig": true,
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+  "css.lint.unknownAtRules": "ignore",
+  "tailwindCSS.experimental.configFile": "tailwind.config.ts",
+  "tailwindCSS.includeLanguages": { "typescriptreact": "html" },
+  "files.associations": { "*.css": "tailwindcss" },
+  "files.exclude": { "**/.next": true },
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "test-results": true,
+    "playwright-report": true,
+    "package-lock.json": true
+  },
+  "playwright.reuseBrowser": false,
+  "playwright.showTrace": false,
+  "vitest.enable": true
+}

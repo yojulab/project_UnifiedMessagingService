@@ -10,7 +10,7 @@
 npm install
 cp .env.example .env.local      # 값 채우기: openssl rand -hex 32 로 NEXTAUTH_SECRET / ENCRYPTION_KEY / UNSUBSCRIBE_SECRET / WEBHOOK_SECRET
 npm run seed                    # CommonCode(채널·공급사·상태·수신거부 사유) 적재
-npm run build && npm start      # http://localhost:3000
+npm run build && npm start      # http://localhost:3110
 ```
 
 - `DRY_RUN=true`(기본값)이면 공급사 API 를 호출하지 않고 결과를 시뮬레이션합니다. 실제 발송은 `.env.local` 에서 `DRY_RUN=false` 로 바꾼 뒤 재시작하세요.

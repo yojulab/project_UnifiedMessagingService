@@ -35,7 +35,7 @@ MONGODB_DBNAME=UnifiedMessagingService_dev
 
 # ── Auth ──────────────────────────────
 NEXTAUTH_SECRET=<generate-random-32byte>
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3110
 
 # ── Encryption ────────────────────────
 ENCRYPTION_KEY=<32-byte-hex-key-for-AES-256-GCM>
@@ -43,7 +43,7 @@ ENCRYPTION_IV_LENGTH=16
 
 # ── App ───────────────────────────────
 NEXT_PUBLIC_APP_NAME=통합 메시징 서비스
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=http://localhost:3110
 ```
 
 > **주의**: 위 값은 개발용 기본값이다. 프로덕션에서는 반드시 교체할 것.

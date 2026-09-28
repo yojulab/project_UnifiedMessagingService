@@ -1,0 +1,60 @@
+{
+  // 통합 메시징 서비스 — 앱 포트 3110 (E2E 테스트 서버는 3100)
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: 서버 디버그 (dev :3110)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev -- --inspect",
+      "env": { "NEXTAUTH_URL": "http://localhost:3110" }
+    },
+    {
+      "name": "Next.js: 클라이언트 디버그 (Chrome :3110)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3110",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Next.js: 풀스택 디버그 (:3110)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
+      "args": ["dev", "-p", "3110"],
+      "runtimeArgs": ["--inspect"],
+      "env": { "NEXTAUTH_URL": "http://localhost:3110" },
+      "skipFiles": ["<node_internals>/**"],
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Next.js: 프로덕션 실행 (build → start :3110)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run build && npm start",
+      "env": { "NEXTAUTH_URL": "http://localhost:3110" }
+    },
+    {
+      "name": "Vitest: 현재 파일",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "시드: CommonCode 적재",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run seed"
+    }
+  ]
+}

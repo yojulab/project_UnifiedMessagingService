@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 3100; // 개발 서버(3000)와 충돌 방지
+const PORT = 3100; // 앱 서버(3110)와 충돌 방지
 const BASE_URL = `http://localhost:${PORT}`;
 export const E2E_DB = 'UnifiedMessagingService_e2e';
 
