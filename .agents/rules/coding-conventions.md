@@ -58,3 +58,7 @@ feat(contacts): 엑셀 파일 업로드 파서 구현
 fix(dispatch): 수신거부 번호 필터링 누락 수정
 chore(deps): mongoose 8.x 업데이트
 ```
+
+- type: `feat` · `fix` · `refactor` · `test` · `docs` · `chore` · `build` · `perf`
+- scope: 도메인(`auth`, `platform`, `contacts`, `dispatch`, `unsubscribe`, `analytics`, `settings`) 또는 `harness`, `vscode`, `e2e`, `deps`
+- 커밋 **시점과 단위**(업무 묶음마다 1커밋, 브랜치, 금지 사항)는 `rules/work-cycle.md` §5 를 따른다.

@@ -36,7 +36,8 @@ PRD 원본: `docs/PRD_UNIFIED_MESSAGING_SERVICE.md` — 기능 명세가 모호�
 
 ## 작업 방식 (Claude 전용)
 
-- **업무 주기 준수**: 모든 작업은 `work-cycle.md`의 작업 단위 주기(①착수 → ②구현 → ③정적 검증 → ④단위 테스트 → ⑤E2E headless → ⑥자가 점검 → ⑦보고)를 따르고, 같은 형식으로 보고한다. 화면이 있는 작업은 Playwright E2E 통과 전에는 완료로 보고하지 않는다.
+- **업무 주기 준수**: 모든 작업은 `work-cycle.md`의 작업 단위 주기(①착수 → ②구현 → ③정적 검증 → ④단위 테스트 → ⑤E2E headless → ⑥자가 점검 → ⑦보고 → ⑧커밋)를 따르고, 같은 형식으로 보고한다. 화면이 있는 작업은 Playwright E2E 통과 전에는 완료로 보고하지 않는다.
+- **업무 묶음마다 커밋**: 사용자는 이 규칙으로 커밋을 상시 요청했다 — 작업 단위·리뷰 반영·하네스 변경·설정 변경이 끝날 때마다 `work-cycle.md` §5 대로 **묶음별 1커밋**(경로 지정 스테이징, 현재 브랜치에 커밋하되 `main`/`master` 위라면 `work/<phase|topic>` 생성, 비밀·산출물 제외)을 남긴다. `push`·병합·이력 재작성은 여전히 사용자가 요청할 때만.
 - **Phase 게이트**: Phase 종료 시 E2E 전체 스위트(build + start 기준) + 완료 조건 체크리스트 + `harness-reviewer`를 모두 통과한 뒤 결과를 보고하고, **사용자 승인 후** 다음 Phase로 넘어간다.
 - **E2E는 항상 headless**: `--headed`, `--ui`, `--debug`, `show-report`/`show-trace` GUI 실행 금지. 실패 분석은 `test-results/`의 스크린샷을 Read로 직접 열어 확인한다.
 - **테넌트 격리 최우선**: 모든 Mongoose 쿼리/aggregate에 `userId`가 들어갔는지 작성 직후 스스로 확인한다. 예외 경로는 `/api/auth/*`, `/unsubscribe`, `/api/unsubscribe`, `/api/webhooks/*`뿐이다.

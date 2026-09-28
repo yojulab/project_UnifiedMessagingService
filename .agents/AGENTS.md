@@ -196,7 +196,7 @@ interface IMessagingAdapter {
 | Rule | `rules/database-api.md` | Mongo 연결·스키마·API·암호화 규칙 |
 | Rule | `rules/ui-design.md` | 테마·Tailwind·레이아웃 규칙 |
 | Rule | `rules/harness-decisions.md` | **문서 간 충돌에 대한 확정 결정 (스킬 본문보다 우선)** |
-| Rule | `rules/work-cycle.md` | **업무 주기(작업 단위 7단계·Phase 게이트·주기적 점검)와 보고 형식** |
+| Rule | `rules/work-cycle.md` | **업무 주기(작업 단위 8단계·Phase 게이트·주기적 점검)·보고 형식·커밋 규칙(업무 묶음마다 1커밋)** |
 | Skill | `skills/project-bootstrap` | Phase 1 |
 | Skill | `skills/db-schema` | 7개 모델 스키마 |
 | Skill | `skills/adapter-pattern` | Phase 2 어댑터 |
