@@ -10,15 +10,14 @@ description: 연락처 허브(Phase 3) 구현 가이드. 엑셀/CSV/TSV/TXT 드�
 
 ---
 
-## 업로드 2단계 흐름
+## 업로드 2단계 흐름 (stateless — harness-decisions #15)
 
 ```
 1) POST /api/contacts/upload/preview   (multipart: file)
-   → 파일 파싱 → { headers: string[], sampleRows: string[][] (상위 3행), totalRows, previewToken }
-   ※ 파싱된 전체 행은 서버에 임시 보관 (UploadHistory status=PROCESSING, 또는 메모리/임시파일 + TTL)
+   → 파일 파싱 → { headers, sampleRows (상위 3행), totalRows, suggestion(매핑 추천) }  ※ 저장하지 않음
 
-2) POST /api/contacts/upload/commit    (JSON: previewToken, mappedColumns, duplicateHandling, labels[])
-   → 정규화 → 중복 처리 → bulkWrite → UploadHistory 집계 갱신(COMPLETED/FAILED)
+2) POST /api/contacts/upload/commit    (multipart: file + options(JSON: mappedColumns, duplicateHandling, labels[]))
+   → 같은 파일을 다시 파싱 → 정규화 → 중복 처리 → bulkWrite → UploadHistory 집계(COMPLETED/FAILED)
 ```
 
 ## 파일 파서 — `src/lib/parsers/fileParser.ts`
@@ -74,7 +73,7 @@ interface MappedColumns {
 ## Master-Detail 뷰어 (PRD §5.3)
 
 - **Master**: 이름 / 대표번호(phones[0]) / 대표이메일(emails[0]) / 출처 파일명 / 수신거부 뱃지. 커서 기반 페이지네이션(`_id` 기준).
-- 검색: 이름·회사는 `$text`, 번호는 정규화 후 `phones` 정확/접두 일치, 이메일은 `emails` 일치.
+- 검색: 이름·회사·부서·라벨은 이스케이프한 정규식 부분 일치 (harness-decisions #16), 번호는 숫자만 추출해 `phones` 부분 일치, 이메일은 `emails` 부분 일치.
 - 필터: 출처(`sourceName` distinct), 라벨(`labels` distinct), 수신거부 제외 토글.
 - **Detail 패널**: 모든 phones/emails(개별 수신거부 상태 표시), labels 편집, notes, customFields, **발송 이력 타임라인**(`DispatchLog.find({ userId, contactId }).sort({ sentAt: -1 })`), 수신거부 수동 토글(사유 `MANUAL`).
 

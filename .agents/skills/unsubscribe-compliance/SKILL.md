@@ -12,30 +12,20 @@ description: 수신거부 자동화 체계(PRD §5.5) 구현 가이드. SMS 080 
 
 ---
 
-## 데이터 모델 (db-schema 보강 — `.agents/rules/harness-decisions.md` 참조)
+## 데이터 모델 — 테넌트 억제 목록 (harness-decisions #25)
 
 ```typescript
-// Contact 스키마에 추가
-unsubscribedRecipients: [{
-  value:   { type: String, required: true },   // 정규화된 번호 또는 소문자 이메일
-  channel: { type: String, enum: ['SMS', 'EMAIL', 'KAKAO'], required: true },
-  reason:  { type: String, enum: ['OPT_OUT_080', 'OPT_OUT_EMAIL', 'MANUAL'], required: true },
-  at:      { type: Date, default: Date.now },
-}],
-// 인덱스
-ContactSchema.index({ userId: 1, 'unsubscribedRecipients.value': 1 });
+// src/lib/db/models/Suppression.ts — 번호/이메일 단위 거부의 단일 기준 (연락처와 독립)
+{ userId, channel: 'SMS' | 'EMAIL' | 'KAKAO', value /* 정규화 번호 또는 소문자 이메일 */, reason: 'OPT_OUT_080' | 'OPT_OUT_EMAIL' | 'MANUAL', contactId?, at }
+SuppressionSchema.index({ userId: 1, channel: 1, value: 1 }, { unique: true });
 ```
-- `isUnsubscribed`는 "연락처의 **모든** 수단이 거부됨" 또는 관리자가 연락처 전체 거부 시 `true`로 유지하는 요약 플래그다.
-- `unsubscribedChannels`는 채널 전체 거부 시 사용(요약). 발송 판정은 아래 함수 하나로 통일한다.
+- `Contact.isUnsubscribed` 는 관리자가 연락처 **전체**를 거부한 경우만, `unsubscribedChannels` 는 채널 전체 거부.
+- 연락처 삭제·재업로드·중복 생성에도 억제 목록은 유지된다 → 거부한 사람에게 재발송 불가.
 
 ```typescript
-// src/lib/unsubscribe/isBlocked.ts
-export function isRecipientBlocked(contact: ContactDoc, channel: Channel, value: string): boolean {
-  if (contact.isUnsubscribed) return true;
-  const ch = channel === 'LMS' ? 'SMS' : channel;           // LMS는 SMS 거부를 따름
-  if (contact.unsubscribedChannels.includes(ch)) return true;
-  return contact.unsubscribedRecipients.some((r) => r.channel === ch && r.value === value);
-}
+// src/lib/unsubscribe/isBlocked.ts — 발송 판정 단일 진입점
+isRecipientBlocked(contact, channel, value, suppressed /* Set<`${channel}:${value}`> */): boolean
+// 서비스: suppress / unsuppress / suppressedForContacts / blockRecipients (src/lib/unsubscribe/service.ts)
 ```
 
 ## SMS — 080 무료수신거부
@@ -46,8 +36,8 @@ export function isRecipientBlocked(contact: ContactDoc, channel: Channel, value:
 - 삽입 후 바이트 수(EUC-KR 기준 90byte)로 SMS/LMS를 재판정하고 Step 2 견적에 반영한다.
 
 ### 080 거부 목록 동기화
-- **수동**: `POST /api/unsubscribe/sms/import` — CSV(번호 1열) 업로드 → 정규화 → 해당 `userId`의 `phones`에 일치하는 Contact들에 `unsubscribedRecipients` push(`OPT_OUT_080`).
-- **자동**: `POST /api/webhooks/{provider}/opt-out` — 공급사 웹훅. 서명 검증 필수, 공급사별 페이로드 파싱은 어댑터의 선택 메서드 `parseOptOutWebhook?(req)`로 위임.
+- **수동**: `POST /api/unsubscribe/sms/import` — CSV/엑셀 업로드 → 모든 셀에서 번호 추출·정규화 → `Suppression` 에 upsert(`OPT_OUT_080`). 일치하는 연락처가 없어도 저장.
+- **자동**: `POST /api/webhooks/{provider}/opt-out?uid=..&sig=..` — 공급사 웹훅. URL 의 HMAC 서명으로 테넌트 인증(harness-decisions #21), 페이로드는 범용 파서 `extractPhones` 로 번호 추출. 회원별 URL 은 `GET /api/me/webhook`.
 
 ## 이메일 — 원클릭 수신거부
 
@@ -66,7 +56,7 @@ export function verifyUnsubToken(token: string): { contactId: string; email: str
 | Method | Path | 동작 |
 |---|---|---|
 | GET | `/unsubscribe?token=...` (페이지) | 토큰 검증 → "수신거부 하시겠습니까?" 확인 페이지 (GET으로 상태 변경 금지 — 메일 스캐너 프리패치 방지) |
-| POST | `/api/unsubscribe` | 폼 제출 또는 RFC 8058 원클릭(`List-Unsubscribe=One-Click` body) → 해당 email을 `unsubscribedRecipients`에 추가(`OPT_OUT_EMAIL`) → 200 |
+| POST | `/api/unsubscribe` | 폼 제출 또는 RFC 8058 원클릭(`List-Unsubscribe=One-Click` body) → 토큰의 (userId, email) 을 `Suppression` 에 upsert(`OPT_OUT_EMAIL`) → 200 |
 
 - `/api/unsubscribe`, `/unsubscribe`는 **인증 미들웨어 예외 경로**다. 테넌트는 토큰의 `u`로 식별한다.
 - 이미 거부된 경우에도 200 (멱등).
@@ -88,6 +78,7 @@ List-Unsubscribe-Post: List-Unsubscribe=One-Click
 - [ ] 토큰 위변조 시 400, 정상 토큰은 확인 페이지 → POST 후 거부 반영
 - [ ] 발송 메일 원본에 `List-Unsubscribe`, `List-Unsubscribe-Post` 헤더 존재
 - [ ] 재업로드(overwrite)로 거부 상태가 해제되지 않음
+- [ ] 연락처 삭제 후 재업로드 / `create_new` 중복 연락처 / 연락처 없는 번호의 080 웹훅 — 모두 이후 발송에서 제외
 
 ## 완료 조건
 

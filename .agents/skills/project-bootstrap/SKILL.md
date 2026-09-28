@@ -14,16 +14,19 @@ Next.js 프로젝트를 PRD 명세에 맞춰 초기화하고, 인증/인프라/�
 
 ```bash
 cd /apps/project_UnifiedMessagingService
-npx -y create-next-app@latest ./ --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm
+# Tailwind v4 가 설치되지 않도록 --no-tailwind 로 생성 후 v3 를 수동 설치 (harness-decisions #1)
+npx -y create-next-app@latest <임시경로> --typescript --eslint --app --src-dir --import-alias "@/*" --use-npm --no-tailwind --no-react-compiler --yes
+npm install -D tailwindcss@3 postcss autoprefixer
 ```
 
-> 이미 `docs/` 등 파일이 있을 수 있으므로 충돌 없이 병합한다.
+> 기존 `docs/`, `.agents/`, `CLAUDE.md` 와 충돌하지 않도록 임시 경로에 생성한 뒤 복사한다 (생성기가 만드는 `AGENTS.md`/`CLAUDE.md`/`README.md` 는 복사하지 않음).
 
 ## Step 2: 필수 패키지 설치
 
 ```bash
-npm install mongoose bcryptjs next-auth zod xlsx papaparse uuid
-npm install -D @types/bcryptjs @types/papaparse @types/uuid vitest @playwright/test
+npm install mongoose next-auth@4 bcryptjs zod papaparse next-themes @aws-sdk/client-sesv2
+npm install https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz   # npm 의 xlsx 0.18 은 보안 패치 중단 — SheetJS 공식 배포본 사용
+npm install -D @types/node@24 @types/papaparse tsx vitest @playwright/test
 npx playwright install --with-deps chromium
 ```
 
@@ -126,7 +129,7 @@ export const commonCodeSeeds = [
 ## Step 8: 기본 레이아웃 (Sidebar + Header)
 
 - `src/app/(dashboard)/layout.tsx`: 인증된 사용자용 기본 레이아웃.
-- Sidebar: 네비게이션 메뉴 5개 (대시보드, 플랫폼, 연락처, 캠페인, 통계, 설정).
+- Sidebar: 네비게이션 메뉴 6개 (대시보드, 플랫폼, 연락처, 캠페인, 통계, 설정).
 - Header: 로고, 사용자 이름/이메일, 테마 토글.
 
 ## 완료 조건 체크리스트

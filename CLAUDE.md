@@ -46,14 +46,15 @@ PRD 원본: `docs/PRD_UNIFIED_MESSAGING_SERVICE.md` — 기능 명세가 모호�
 ## 검증 명령
 
 ```bash
-npm run lint                 # ESLint
 npx tsc --noEmit             # 타입 검사 (strict)
-npm test                     # 단위 테스트 (vitest — 파서/정규화/토큰/암호화 필수)
-npm run test:e2e             # Playwright E2E 전체 (headless, 포트 3100, DB UnifiedMessagingService_e2e, DRY_RUN)
-npm run test:e2e -- e2e/phase3-contacts.spec.ts   # 영향 spec만
-npm run seed                 # CommonCode 시드 (tsx seeds/run.ts)
-npm run dev                  # http://localhost:3000
+npm run lint                 # ESLint CLI (Next 16 은 next lint 없음)
+npm test                     # 단위 테스트 (vitest — 파서/정규화/토큰/암호화/템플릿)
+npm run test:e2e             # Playwright E2E 전체 (headless, build+start, 포트 3100, DB UnifiedMessagingService_e2e, DRY_RUN)
+E2E_SKIP_BUILD=1 npm run test:e2e -- e2e/phase3-contacts.spec.ts   # 앱 코드 변경 없을 때 영향 spec 만 (빌드 생략)
+npm run seed                 # CommonCode 시드 (dev DB)
+npm run build && npm start   # 로컬 실행 확인 — `next dev` 는 사용하지 않는다 (harness-decisions #14)
 mongosh "mongodb://host.docker.internal:27017/UnifiedMessagingService_dev"   # DB 확인
 ```
 
-코드 변경 후에는 `tsc --noEmit` → `lint` → 단위 테스트 → 영향 spec E2E 순으로 통과시킨 뒤 완료를 보고한다. E2E는 dev DB(`UnifiedMessagingService_dev`)를 절대 사용하지 않는다.
+코드 변경 후에는 `tsc --noEmit` → `lint` → 단위 테스트 → 영향 spec E2E 순으로 통과시킨 뒤 완료를 보고한다. E2E 는 dev DB(`UnifiedMessagingService_dev`)를 절대 사용하지 않는다.
+포트 3100 에 서버를 수동으로 띄웠다면 E2E 실행 전에 반드시 종료한다 (`next-server` 프로세스 이름으로 남는다).

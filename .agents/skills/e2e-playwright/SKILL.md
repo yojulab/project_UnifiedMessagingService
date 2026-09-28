@@ -62,7 +62,7 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npx next start -p ${PORT}`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,   // 남은 서버 재사용 금지 — 오래된 빌드/다른 DB 로 테스트되는 사고 방지
     timeout: 180_000,
     env: {
       MONGODB_URI: process.env.MONGODB_URI ?? 'mongodb://host.docker.internal:27017',
@@ -74,7 +74,8 @@ export default defineConfig({
   },
 });
 ```
-> 작업 단위 주기(⑤)에서 빌드 시간을 줄이려면 `command`를 `npx next dev -p 3100`으로 바꿔도 된다. 단 **Phase 게이트는 반드시 build + start 기준**으로 실행한다.
+> 작업 단위 주기(⑤)에서 서버 코드 변경이 없으면 `E2E_SKIP_BUILD=1 npm run test:e2e -- <spec>` 으로 빌드를 생략할 수 있다 (기존 `.next` 로 start). 서버/클라이언트 코드를 바꿨다면 반드시 빌드 포함으로 실행한다. **Phase 게이트는 항상 build + start 기준**. `next dev` 는 에이전트 환경에서 루트 CLAUDE.md 를 자동 수정하므로 사용하지 않는다.
+> 수동으로 `next start -p 3100` 을 띄웠다면 테스트 전에 반드시 종료한다 (포트 충돌 시 webServer 가 실패한다).
 
 ## 3. 테스트 데이터
 
@@ -88,7 +89,8 @@ export default defineConfig({
 ## 4. 발송 차단 (DRY_RUN)
 
 - 어댑터는 `process.env.DRY_RUN === 'true'`이면 네트워크 호출 없이 결정적 결과를 반환한다:
-  - 수신자에 `fail`이 포함되면 `FAILED`, `bounce`면 `BOUNCED`, 그 외 `SUCCESS` (`messageId: dry-<uuid>`).
+  - 수신자에 `fail` 포함 또는 끝자리 `9999` → `FAILED`, `bounce` 포함 또는 끝자리 `8888` → `BOUNCED`, KAKAO 채널에서만 끝자리 `7777` → `FAILED`(LMS 대체 검증용), 그 외 `SUCCESS` (`messageId: dry-<uuid>`).
+  - 설정값 중 `invalid` 가 있으면 연결 테스트 실패.
   - 전송 직전 최종 payload(본문, 헤더)를 `DispatchLog.providerResponse.dryRunPayload`에 기록 → E2E에서 080 문구/`List-Unsubscribe` 헤더 검증에 사용.
 - 추가 안전망: spec에서 `page.route('**/*', ...)`로 외부 도메인(zoho.com, amazonaws.com, aligo.in, solapi.com) 요청을 abort하고, 발생 시 테스트 실패 처리.
 

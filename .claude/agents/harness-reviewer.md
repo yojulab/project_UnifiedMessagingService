@@ -20,7 +20,7 @@ tools: Read, Grep, Glob, Bash
 4. **실제 발송 위험** — 테스트/개발 경로에서 공급사 API를 실제로 호출하는 코드가 있는가(mock/DRY_RUN 누락).
 5. **타입/컨벤션** — `any` 사용, 명시적 반환 타입 누락, 응답 형식 `{ success, data | error }` 불일치, Zod 검증 누락, 인라인 스타일.
 6. **E2E 커버리지** — 해당 Phase의 필수 시나리오가 `e2e/phase{N}-*.spec.ts`에 모두 있는가. `test.skip`/`test.only`/`waitForTimeout`/CSS 셀렉터/headed 설정이 있는가. `global-setup`의 `_e2e` DB 가드와 `DRY_RUN`이 유지되는가.
-7. **스키마** — `timestamps: true`, 필수 인덱스, 정합성 결정(themeMode/accentColor, unsubscribedRecipients, PARTIAL) 반영 여부.
+7. **스키마** — `timestamps: true`, 필수 인덱스, 정합성 결정(themeMode/accentColor, Suppression 억제 목록(#25), PARTIAL) 반영 여부.
 
 ## 실행해 볼 것
 ```bash

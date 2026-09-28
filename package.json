@@ -1,0 +1,45 @@
+{
+  "name": "unified-messaging-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed": "tsx seeds/run.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1141.0",
+    "bcryptjs": "^3.0.3",
+    "mongoose": "^9.10.2",
+    "next": "16.3.6",
+    "next-auth": "^4.24.15",
+    "next-themes": "^0.4.6",
+    "papaparse": "^5.7.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.19.0",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.6.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.0.2"
+  }
+}
