@@ -1,0 +1,148 @@
+{
+  // 통합 메시징 서비스 디버그 구성 — 앱 :3110 (포트는 이 파일의 실행 인자로 지정), Node inspector :9229, E2E 서버 :3100
+  // 모든 구성은 DRY_RUN=true (실제 공급사 발송 차단). 실제 발송 디버그가 필요하면 env 에서 직접 바꿀 것.
+  "version": "0.2.0",
+  "configurations": [
+    // ── Next.js (next dev, Turbopack) ─────────────────────────────
+    {
+      "name": "① 서버 디버그 (dev :3110)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev -- -p 3110 --inspect",
+      "env": {
+        "NEXTAUTH_URL": "http://localhost:3110",
+        "DRY_RUN": "true",
+        "NEXT_TELEMETRY_DISABLED": "1"
+      },
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"],
+      "serverReadyAction": {
+        "pattern": "- Local:.+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    },
+    {
+      "name": "② 서버 디버그 — 시작 즉시 중단 (instrumentation·예약 발송 폴러)",
+      "type": "node-terminal",
+      "request": "launch",
+      // --inspect-brk 는 CLI 플래그가 아닌 NODE_OPTIONS 로 전달해야 한다 (Next 16 문서).
+      // npm 을 거치면 npm 프로세스가 NODE_OPTIONS 를 먼저 받아 9229 를 선점하므로 next 를 직접 실행한다.
+      "command": "node_modules/.bin/next dev -p 3110",
+      "env": {
+        "NODE_OPTIONS": "--inspect-brk",
+        "NEXTAUTH_URL": "http://localhost:3110",
+        "DRY_RUN": "true",
+        "DISPATCH_POLL_INTERVAL_MS": "5000",
+        "NEXT_TELEMETRY_DISABLED": "1"
+      },
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "③ 클라이언트 디버그 (Chrome :3110)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3110",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "turbopack:///[project]/*": "${workspaceFolder}/*",
+        "webpack://_N_E/*": "${workspaceFolder}/*",
+        "webpack:///./*": "${workspaceFolder}/*"
+      },
+      "skipFiles": ["${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "④ 풀스택 디버그 (서버 + Chrome 자동 연결)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
+      "args": ["dev", "-p", "3110"],
+      "runtimeArgs": ["--inspect"],
+      "env": {
+        "NEXTAUTH_URL": "http://localhost:3110",
+        "DRY_RUN": "true",
+        "NEXT_TELEMETRY_DISABLED": "1"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"],
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "- Local:.+(https?://\\S+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "⑤ 실행 중인 서버에 연결 (attach :9229)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "⑥ 프로덕션 빌드 디버그 (build → start --inspect :3110)",
+      "type": "node-terminal",
+      "request": "launch",
+      // NODE_OPTIONS 는 build 가 아닌 start 프로세스에만 (npm 경유 시 9229 선점 문제로 next 직접 실행)
+      "command": "npm run build && NODE_OPTIONS='--inspect --enable-source-maps' node_modules/.bin/next start -p 3110",
+      "env": {
+        "NEXTAUTH_URL": "http://localhost:3110",
+        "DRY_RUN": "true",
+        "NEXT_TELEMETRY_DISABLED": "1"
+      },
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+
+    // ── 테스트 · 스크립트 ─────────────────────────────────────────
+    {
+      "name": "⑦ Vitest: 현재 파일",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}", "--no-file-parallelism", "--test-timeout=0"],
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "⑧ Vitest: 전체",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "--no-file-parallelism", "--test-timeout=0"],
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "⑨ Playwright: 현재 spec (headless, 테스트 코드 중단점)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
+      "args": ["test", "${relativeFile}", "--workers=1", "--retries=0", "--timeout=0"],
+      // 앱 코드 변경이 없으면 빌드 생략. 서버/클라이언트 코드를 바꿨다면 이 줄을 지우고 실행
+      "env": { "E2E_SKIP_BUILD": "1" },
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    },
+    {
+      "name": "⑩ 시드 스크립트 (tsx seeds/run.ts)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/tsx/dist/cli.mjs",
+      "args": ["seeds/run.ts"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "${workspaceFolder}/node_modules/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "★ 풀스택: ① 서버 + ③ Chrome",
+      "configurations": ["① 서버 디버그 (dev :3110)", "③ 클라이언트 디버그 (Chrome :3110)"],
+      "stopAll": true
+    }
+  ]
+}

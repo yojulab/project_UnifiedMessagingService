@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev (:3110, inspect)",
+      "type": "shell",
+      "command": "npm run dev -- -p 3110 --inspect",
+      "options": { "env": { "NEXTAUTH_URL": "http://localhost:3110", "DRY_RUN": "true" } },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "next",
+        "pattern": { "regexp": "^__never__$" },
+        "background": { "activatesOnStart": true, "beginsPattern": "Next\\.js", "endsPattern": "Ready in" }
+      }
+    },
+    {
+      "label": "start (:3110)",
+      "type": "shell",
+      "command": "npm run build && npm start -- -p 3110",
+      "options": { "env": { "NEXTAUTH_URL": "http://localhost:3110", "DRY_RUN": "true" } },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    { "label": "typecheck", "type": "shell", "command": "npx tsc --noEmit", "problemMatcher": ["$tsc"] },
+    { "label": "lint", "type": "npm", "script": "lint", "problemMatcher": ["$eslint-stylish"] },
+    { "label": "unit test", "type": "npm", "script": "test", "group": "test", "problemMatcher": [] },
+    { "label": "e2e (headless, :3100)", "type": "npm", "script": "test:e2e", "group": "test", "problemMatcher": [] },
+    { "label": "seed", "type": "npm", "script": "seed", "problemMatcher": [] },
+    {
+      "label": "검증 게이트 (tsc → lint → unit → e2e)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["typecheck", "lint", "unit test", "e2e (headless, :3100)"],
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}

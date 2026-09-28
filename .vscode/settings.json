@@ -1,0 +1,23 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "eslint.useFlatConfig": true,
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" },
+  "css.lint.unknownAtRules": "ignore",
+  "tailwindCSS.experimental.configFile": "tailwind.config.ts",
+  "files.exclude": { "**/.next": true },
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "test-results": true,
+    "playwright-report": true,
+    "package-lock.json": true
+  },
+
+  // ── 디버그 ──
+  "debug.javascript.autoAttachFilter": "onlyWithFlag",
+  "debug.javascript.terminalOptions": { "skipFiles": ["<node_internals>/**", "**/node_modules/**"] },
+  "debug.javascript.unmapMissingSources": true,
+  "debug.inlineValues": "on",
+  "debug.toolBarLocation": "docked"
+}
