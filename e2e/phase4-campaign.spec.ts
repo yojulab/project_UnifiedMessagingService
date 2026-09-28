@@ -178,12 +178,30 @@ test.describe('Phase 4 — 캠페인 발송', () => {
     expect(logs).toHaveLength(2);
     for (const l of logs) {
       const p = (l.providerResponse as { dryRunPayload: { subject: string; html: string; headers: Record<string, string> } }).dryRunPayload;
-      expect(p.subject).toBe(`메일${tag}님께`);
+      // 광고성(기본값): 제목 (광고) 표기 + 푸터 발신자 명칭(회원 회사명)·주소
+      expect(p.subject).toBe(`(광고) 메일${tag}님께`);
+      expect(p.html).toContain('발신: E2E-A &lt;sender@e2e.test&gt;');
       expect(p.html).toContain('<b>안녕</b>');
       expect(p.html).toMatch(/\/unsubscribe\?token=[\w-]+\.[\w-]+/);
       expect(p.headers['List-Unsubscribe']).toMatch(/^<http:\/\/localhost:3100\/api\/unsubscribe\?token=[^>]+>, <mailto:sender@e2e\.test\?subject=unsubscribe>$/);
       expect(p.headers['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click');
     }
+  });
+
+  test('정보성 이메일(isAd=false)은 (광고) 표기·발신자 줄 없음', async () => {
+    const tag = uniqueTag('P4I');
+    await importContacts(a, csv(`${tag}.csv`, contactRows([{ name: `정보${tag}`, e1: `info-${tag}@e2e.test` }])), { labels: [tag] });
+    const id = await createCampaign({
+      platformConfigId: emailId,
+      targetFilter: { mode: 'ALL', labels: [tag] },
+      messageTemplate: { subject: '서비스 점검 안내', body: '점검 예정', isAd: false },
+    });
+    await waitForCampaign(a, id);
+    const [l] = await logsOf(id);
+    const p = (l.providerResponse as { dryRunPayload: { subject: string; html: string } }).dryRunPayload;
+    expect(p.subject).toBe('서비스 점검 안내');
+    expect(p.html).not.toContain('발신:');
+    expect(p.html).toContain('/unsubscribe?token='); // 수신거부 링크는 항상
   });
 
   test('카카오 알림톡 실패 시 LMS 자동 대체 발송', async () => {

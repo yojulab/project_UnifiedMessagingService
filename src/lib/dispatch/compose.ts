@@ -3,13 +3,15 @@ import { DEFAULT_UNIT_COST } from '@/lib/codes/seedData';
 import type { ContactDoc } from '@/lib/db/models/Contact';
 import { listUnsubscribeHeaders, signUnsubToken, unsubscribePageUrl } from '@/lib/unsubscribe/token';
 import type { Channel, MessageTemplate } from '@/types';
-import { buildEmailBody, buildSmsBody, decideSmsType, resolveTemplate } from './template';
+import { buildEmailBody, buildSmsBody, decideSmsType, emailSubject, resolveTemplate } from './template';
 
 export interface ComposeContext {
   userId: string;
   channel: Channel;
   template: MessageTemplate;
   config: AdapterConfig;
+  /** 발신자 명칭 (회원 회사명 또는 이름) — 광고성 이메일 푸터에 표기 */
+  senderName?: string;
 }
 
 export interface Composed {
@@ -27,11 +29,13 @@ export function composeMessage(contact: ContactDoc, recipient: string, ctx: Comp
   if (ctx.channel === 'EMAIL') {
     const token = signUnsubToken({ contactId: String(contact._id), email: recipient, userId: ctx.userId });
     const url = unsubscribePageUrl(token);
-    const { html, text } = buildEmailBody(body, { isHtml: Boolean(tpl.isHtml), unsubUrl: url });
+    const isAd = tpl.isAd !== false;
+    const sender = [ctx.senderName, ctx.config.senderAddress && `<${ctx.config.senderAddress}>`].filter(Boolean).join(' ');
+    const { html, text } = buildEmailBody(body, { isHtml: Boolean(tpl.isHtml), unsubUrl: url, sender: isAd ? sender : undefined });
     return {
       payload: {
         recipient,
-        subject,
+        subject: emailSubject(subject, isAd),
         body: text,
         html,
         senderAddress: ctx.config.senderAddress,

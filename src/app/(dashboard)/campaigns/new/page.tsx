@@ -16,7 +16,7 @@ import type { TargetFilter } from '@/types';
 
 interface Platform { id: string; name: string; channel: string; provider: string; providerName: string; isDefault: boolean; status: string; configData: Record<string, string> }
 interface Estimate {
-  channel: string; targetCount: number; messageCount: number; blockedCount: number; unitCost: number; estimatedCost: number; billedType: string;
+  channel: string; targetCount: number; messageCount: number; blockedCount: number; unitCost: number; estimatedCost: number; billedType: string; warnings: string[];
   sample: Sample | null; sampleError: string | null;
 }
 type Group = 'EMAIL' | 'SMS' | 'KAKAO';
@@ -206,6 +206,7 @@ export default function NewCampaignPage(): ReactElement {
           </div>
           {estimating && !estimate && <Spinner label="대상 계산 중" />}
           {summary}
+          {estimate?.warnings.map((w) => <Alert key={w} tone="warning">{w}</Alert>)}
           {estimate && estimate.messageCount === 0 && <Alert tone="warning">조건에 맞는 발송 대상이 없습니다.</Alert>}
         </section>
       )}
@@ -232,9 +233,11 @@ export default function NewCampaignPage(): ReactElement {
             </div>
           </div>
           {channel === 'EMAIL' && <Checkbox label="HTML 본문" checked={isHtml} onChange={(e) => setIsHtml(e.target.checked)} />}
+          {channel === 'EMAIL' && <Checkbox label="광고성 메일 (제목 앞 (광고) 표기 + 발신자 정보 표기)" checked={isAd} onChange={(e) => setIsAd(e.target.checked)} />}
           {isSms && <Checkbox label="광고성 메시지 ((광고) 표기 + 080 수신거부 자동 삽입)" checked={isAd} onChange={(e) => setIsAd(e.target.checked)} />}
           <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-sm" aria-label="자동 삽입 영역">
             <p className="font-medium">⚡ 자동 삽입 영역</p>
+            {channel === 'EMAIL' && isAd && <p className="mt-1 text-xs">광고성 메일: 제목 앞 <strong>(광고)</strong> 표기와 발신자 명칭·주소가 자동으로 들어갑니다 (정보통신망법).</p>}
             {channel === 'EMAIL' && platform?.provider !== 'ZOHO' && <p className="mt-1 text-xs">본문 하단 수신거부 링크 + RFC 8058 List-Unsubscribe / List-Unsubscribe-Post 헤더가 수신자별로 자동 부착됩니다.</p>}
             {channel === 'EMAIL' && platform?.provider === 'ZOHO' && (
               <p className="mt-1 text-xs text-warning" role="alert">
@@ -263,6 +266,7 @@ export default function NewCampaignPage(): ReactElement {
             <dd>{[filter.labels?.length ? `라벨 ${filter.labels.join(', ')}` : '', filter.sourceNames?.length ? `출처 ${filter.sourceNames.join(', ')}` : '', filter.keywords ? `키워드 "${filter.keywords}"` : ''].filter(Boolean).join(' · ') || '없음'}</dd>
             <dt className="text-muted-foreground">예상 비용</dt><dd>{fmtWon(estimate.estimatedCost)}</dd>
           </dl>
+          {estimate.warnings.map((w) => <Alert key={w} tone="error">{w}</Alert>)}
           {estimate.sample && <MessagePreview sample={estimate.sample} channel={channel} />}
           <fieldset>
             <legend className="field-label">발송 시점</legend>

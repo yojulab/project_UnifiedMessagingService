@@ -4,6 +4,7 @@ import { errorMessage, type AdapterConfig, type IMessagingAdapter } from '@/lib/
 import { connectDB } from '@/lib/db/connection';
 import { DispatchJob, type DispatchJobDoc } from '@/lib/db/models/DispatchJob';
 import { DispatchLog } from '@/lib/db/models/DispatchLog';
+import { User } from '@/lib/db/models/User';
 import type { ContactDoc } from '@/lib/db/models/Contact';
 import { loadDecryptedConfig } from '@/lib/platform/configService';
 import { activeRecipients } from '@/lib/unsubscribe/isBlocked';
@@ -45,6 +46,7 @@ interface Runtime {
   adapter: IMessagingAdapter;
   config: AdapterConfig;
   fallback: { adapter: IMessagingAdapter; config: AdapterConfig } | null;
+  senderName: string;
 }
 
 async function sendOne(rt: Runtime, contact: ContactDoc, recipient: string): Promise<void> {
@@ -70,7 +72,7 @@ async function sendOne(rt: Runtime, contact: ContactDoc, recipient: string): Pro
   }
 
   const template = job.messageTemplate as MessageTemplate;
-  const ctx = { userId: String(job.userId), channel, template, config: rt.config };
+  const ctx = { userId: String(job.userId), channel, template, config: rt.config, senderName: rt.senderName };
   let composed;
   try {
     composed = composeMessage(contact, recipient, ctx);
@@ -133,6 +135,12 @@ async function logSkipped(job: DispatchJobDoc, contact: ContactDoc, recipient: s
   }
 }
 
+/** 광고성 이메일 발신자 명칭 — 회원 회사명, 없으면 이름 */
+export async function senderNameOf(userId: Types.ObjectId): Promise<string> {
+  const u = await User.findById(userId, { company: 1, name: 1 }).lean();
+  return (u?.company || u?.name || '').trim();
+}
+
 async function buildRuntime(job: DispatchJobDoc): Promise<Runtime> {
   const { plain } = await loadDecryptedConfig(job.userId, job.platformConfigId);
   const adapter = AdapterFactory.create(job.channel as Channel, job.provider, plain);
@@ -141,7 +149,7 @@ async function buildRuntime(job: DispatchJobDoc): Promise<Runtime> {
     const fb = await loadDecryptedConfig(job.userId, job.fallbackConfigId);
     fallback = { adapter: AdapterFactory.create('LMS', fb.doc.provider, fb.plain), config: fb.plain };
   }
-  return { job, adapter, config: plain, fallback };
+  return { job, adapter, config: plain, fallback, senderName: await senderNameOf(job.userId) };
 }
 
 /**

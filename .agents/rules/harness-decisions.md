@@ -33,3 +33,9 @@
 24. **캠페인 대상 스냅샷** — 발송 확정 시 대상 연락처 ID 를 `DispatchJob.targetContactIds` 에 저장한다 (RANDOM_N 재현성, 예약 발송 중 연락처 변경 영향 차단). 수신거부는 발송 시점에 다시 검증한다.
 25. **테넌트 억제 목록 (Suppression)** — 번호/이메일 단위 수신거부의 **단일 기준**은 `suppressions` 컬렉션 `{userId, channel, value, reason, contactId?, at}` (`(userId, channel, value)` 유니크). 080 CSV·웹훅·이메일 원클릭·관리자 수동 차단 모두 여기에 기록하며, 연락처가 없어도 저장한다. 연락처 삭제·재업로드·`create_new` 중복 생성과 무관하게 유지되어 거부한 사람에게 재발송되지 않는다 (정보통신망법 §50). 발송·견적은 청크마다 `suppressedForContacts()` 로 불러와 `isRecipientBlocked(contact, channel, value, suppressed)` 로 판정한다. 해제는 `DELETE /api/unsubscribes` 또는 연락처 상세의 번호별 해제.
 26. **DRY_RUN fail-safe** — `DRY_RUN=false` 를 명시한 경우에만 실제 공급사 API 를 호출한다. 미설정·오타는 모두 시뮬레이션.
+
+### Zoho 실발송 검증에서 확정 (2026-09-28)
+
+27. **수신거부 링크 공개 주소 강제** — 수신거부·웹훅 링크의 기준 주소는 `PUBLIC_BASE_URL` → `NEXTAUTH_URL` → `NEXT_PUBLIC_BASE_URL` 순(`src/lib/baseUrl.ts`). 실발송(`DRY_RUN=false`) 이메일 캠페인은 이 주소가 localhost·사설 IP·`.local`/`.internal` 이면 **생성 자체를 거부**한다(`UNSUBSCRIBE_URL_NOT_PUBLIC`, 견적 `warnings` 에도 표시). 수신자가 열 수 없는 수신거부 링크로 광고를 보내면 수신거부 수단 미제공이 되기 때문. 내부 테스트용 예외는 `ALLOW_PRIVATE_UNSUBSCRIBE_URL=true` — 운영에서는 설정 금지.
+28. **광고성 이메일 표기** — 이메일도 `messageTemplate.isAd`(기본 true)를 따른다. 광고성이면 제목 앞 `(광고)` 자동 표기(중복 방지)와 푸터에 발신자 명칭(회원 회사명, 없으면 이름)·발신 주소를 넣는다(정보통신망법 시행령). 정보성(`isAd=false`)이어도 수신거부 링크는 항상 넣는다. 캠페인 Step 3 에서 이메일에도 "광고성 메일" 체크박스를 표시한다.
+29. **실발송 검증 절차** — 실제 공급사로 보내는 검증은 사용자가 지정한 테스트 주소로만 한다. 자격증명은 저장소 파일·커밋에 쓰지 않고 앱 UI/API 로 등록(DB AES 암호화)하며, 작업용 임시 파일은 스크래치 영역에 두고 끝나면 삭제한다. 검증용 서버는 `DRY_RUN=false` 를 해당 프로세스에만 지정해 띄우고 끝나면 내린다.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildEmailBody, buildSmsBody, decideSmsType, resolveTemplate, smsByteLength } from './template';
+import { buildEmailBody, buildSmsBody, decideSmsType, emailSubject, resolveTemplate, smsByteLength } from './template';
 
 describe('resolveTemplate', () => {
   it('기본 태그 + customFields 치환, 모르는 태그 유지', () => {
@@ -43,5 +43,18 @@ describe('buildEmailBody', () => {
     expect(r.html).toContain('&lt;b&gt;hi&lt;/b&gt;');
     expect(r.html).toContain('href="http://x/unsubscribe?token=t"');
     expect(r.text).toContain('수신거부: http://x/unsubscribe?token=t');
+  });
+});
+
+describe('광고성 이메일 표기', () => {
+  it('제목 앞 (광고) — 중복 없이, 비광고는 그대로', () => {
+    expect(emailSubject('신제품 안내', true)).toBe('(광고) 신제품 안내');
+    expect(emailSubject('(광고) 신제품 안내', true)).toBe('(광고) 신제품 안내');
+    expect(emailSubject(' 공지 ', false)).toBe('공지');
+  });
+  it('푸터에 발신자 명칭·주소', () => {
+    const r = buildEmailBody('본문', { isHtml: false, unsubUrl: 'https://x/u', sender: 'ACME <a@b.com>' });
+    expect(r.html).toContain('발신: ACME &lt;a@b.com&gt;');
+    expect(r.text).toContain('발신: ACME <a@b.com>');
   });
 });

@@ -53,16 +53,23 @@ export function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c);
 }
 
-export function emailFooterHtml(unsubUrl: string): string {
-  return `<hr style="margin-top:24px;border:none;border-top:1px solid #ddd"/><p style="font-size:12px;color:#888">본 메일은 수신에 동의하신 분께 발송되었습니다. 수신을 원하지 않으시면 <a href="${escapeHtml(unsubUrl)}">여기를 클릭</a>하여 수신거부 하실 수 있습니다.</p>`;
+/** 광고성 이메일 제목: 앞에 (광고) 표기 (정보통신망법 시행령) — 이미 있으면 그대로 */
+export function emailSubject(subject: string, isAd: boolean): string {
+  const s = subject.trim();
+  return isAd && !s.startsWith('(광고)') ? `(광고) ${s}` : s;
+}
+
+export function emailFooterHtml(unsubUrl: string, sender?: string): string {
+  const senderLine = sender ? `<br/>발신: ${escapeHtml(sender)}` : '';
+  return `<hr style="margin-top:24px;border:none;border-top:1px solid #ddd"/><p style="font-size:12px;color:#888">본 메일은 수신에 동의하신 분께 발송되었습니다. 수신을 원하지 않으시면 <a href="${escapeHtml(unsubUrl)}">여기를 클릭</a>하여 수신거부 하실 수 있습니다.${senderLine}</p>`;
 }
 
 /** 이메일 HTML/텍스트 본문 + 수신거부 푸터 */
-export function buildEmailBody(body: string, opts: { isHtml: boolean; unsubUrl: string }): { html: string; text: string } {
+export function buildEmailBody(body: string, opts: { isHtml: boolean; unsubUrl: string; sender?: string }): { html: string; text: string } {
   const html = opts.isHtml ? body : `<div style="white-space:pre-wrap">${escapeHtml(body)}</div>`;
   const plain = opts.isHtml ? body.replace(/<[^>]+>/g, '') : body;
   return {
-    html: `${html}${emailFooterHtml(opts.unsubUrl)}`,
-    text: `${plain}\n\n---\n수신거부: ${opts.unsubUrl}`,
+    html: `${html}${emailFooterHtml(opts.unsubUrl, opts.sender)}`,
+    text: `${plain}\n\n---\n수신거부: ${opts.unsubUrl}${opts.sender ? `\n발신: ${opts.sender}` : ''}`,
   };
 }

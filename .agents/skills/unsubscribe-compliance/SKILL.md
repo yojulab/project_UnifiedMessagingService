@@ -69,6 +69,10 @@ List-Unsubscribe-Post: List-Unsubscribe=One-Click
 - 어댑터 `SendPayload`에 `headers?: Record<string, string>`를 추가하여 전달한다 (Zoho/SES 각 API 형식으로 매핑).
 - HTML 본문 하단 푸터에는 확인 페이지 URL(`/unsubscribe?token=`)을 링크한다.
 
+### 광고성 이메일 표기 & 링크 주소 (harness-decisions #27, #28)
+- `isAd`(기본 true)이면 제목 앞 `(광고)` 자동 표기, 푸터에 `발신: <회사명> <발신주소>` — `emailSubject()` / `buildEmailBody({ sender })`.
+- 링크 기준 주소는 `PUBLIC_BASE_URL`. 실발송에서 localhost·사설 IP 이면 캠페인 생성 거부(`UNSUBSCRIBE_URL_NOT_PUBLIC`) — 수신자가 열 수 없는 수신거부 링크는 수신거부 수단 미제공과 같다.
+
 ## 수신거부 관리 화면 (Analytics 메뉴 하위)
 - 채널/사유/기간 필터, 수동 해제(사유 기록), CSV 내보내기.
 
@@ -79,7 +83,6 @@ List-Unsubscribe-Post: List-Unsubscribe=One-Click
 - [ ] 발송 메일 원본에 `List-Unsubscribe`, `List-Unsubscribe-Post` 헤더 존재
 - [ ] 재업로드(overwrite)로 거부 상태가 해제되지 않음
 - [ ] 연락처 삭제 후 재업로드 / `create_new` 중복 연락처 / 연락처 없는 번호의 080 웹훅 — 모두 이후 발송에서 제외
-
-## 완료 조건
-
+- [ ] 광고성 이메일 제목 `(광고)` + 푸터 발신자 정보, 정보성은 미표기(링크는 유지)
+- [ ] 실발송 모드에서 비공개 주소(localhost 등) 수신거부 링크 캠페인 거부
 - [ ] Playwright headless E2E `e2e/phase4-campaign`, `phase5-analytics.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)
