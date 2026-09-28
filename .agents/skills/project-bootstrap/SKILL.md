@@ -23,8 +23,11 @@ npx -y create-next-app@latest ./ --typescript --tailwind --eslint --app --src-di
 
 ```bash
 npm install mongoose bcryptjs next-auth zod xlsx papaparse uuid
-npm install -D @types/bcryptjs @types/papaparse @types/uuid
+npm install -D @types/bcryptjs @types/papaparse @types/uuid vitest @playwright/test
+npx playwright install --with-deps chromium
 ```
+
+> Playwright 설정·테스트 DB·DRY_RUN은 `e2e-playwright` 스킬 §1~4를 따른다 (Phase 1에서 함께 구축).
 
 ## Step 3: 환경 변수 세팅
 
@@ -134,3 +137,4 @@ export const commonCodeSeeds = [
 - [ ] CommonCode 시드 데이터 DB 적재 완료
 - [ ] Sidebar + Header 레이아웃 렌더링 정상
 - [ ] Dark/Light 모드 토글 동작
+- [ ] Playwright headless E2E `e2e/phase1-auth.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)

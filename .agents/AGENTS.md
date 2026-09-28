@@ -182,6 +182,8 @@ interface IMessagingAdapter {
 4. **Phase 4** — 캠페인 발송 마법사 + 타겟팅 + 수신거부 자동화
 5. **Phase 5** — 발송 결과 분석 대시보드 + 테마 설정 + 최종 검증
 
+> 각 Phase는 `rules/work-cycle.md`의 **Phase 게이트**(tsc·lint·단위 테스트·**Playwright headless E2E 전체 스위트**·완료 조건·규칙 검토)를 통과하고 사용자 승인을 받아야 완료된다.
+
 ---
 
 ## 하네스 인덱스 (Gemini · Claude Code 공용)
@@ -194,6 +196,7 @@ interface IMessagingAdapter {
 | Rule | `rules/database-api.md` | Mongo 연결·스키마·API·암호화 규칙 |
 | Rule | `rules/ui-design.md` | 테마·Tailwind·레이아웃 규칙 |
 | Rule | `rules/harness-decisions.md` | **문서 간 충돌에 대한 확정 결정 (스킬 본문보다 우선)** |
+| Rule | `rules/work-cycle.md` | **업무 주기(작업 단위 7단계·Phase 게이트·주기적 점검)와 보고 형식** |
 | Skill | `skills/project-bootstrap` | Phase 1 |
 | Skill | `skills/db-schema` | 7개 모델 스키마 |
 | Skill | `skills/adapter-pattern` | Phase 2 어댑터 |
@@ -202,3 +205,4 @@ interface IMessagingAdapter {
 | Skill | `skills/campaign-dispatch` | Phase 4 발송 마법사·엔진 |
 | Skill | `skills/unsubscribe-compliance` | Phase 4~5 수신거부 체계 |
 | Skill | `skills/analytics-theme` | Phase 5 통계·설정·테마 |
+| Skill | `skills/e2e-playwright` | 전 Phase — Playwright headless E2E 검증 |

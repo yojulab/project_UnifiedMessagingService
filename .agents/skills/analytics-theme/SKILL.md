@@ -73,3 +73,7 @@ colors: { primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--prim
 - [ ] 로그 CSV 내보내기 (한글 깨짐 없음 — UTF-8 BOM)
 - [ ] 모드 3종 × 팔레트 6종 전환이 새로고침 없이 반영되고 재로그인 후 유지
 - [ ] 다크 모드에서 primary 버튼 텍스트 대비 확보
+
+## 완료 조건
+
+- [ ] Playwright headless E2E `e2e/phase5-analytics.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)

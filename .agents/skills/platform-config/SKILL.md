@@ -100,3 +100,4 @@ export function toCamelCase(key: string): string {
 - [ ] GET 응답에 평문 비밀값이 없음
 - [ ] 연결 테스트 성공/실패 메시지 표출, 저장 설정의 `status` 반영
 - [ ] 다른 회원의 설정 id로 PUT/DELETE 시 404
+- [ ] Playwright headless E2E `e2e/phase2-platform.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)

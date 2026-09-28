@@ -99,3 +99,4 @@ interface MappedColumns {
 - [ ] UploadHistory의 total/imported/skipped 수치 일치
 - [ ] Master 검색·필터·페이지네이션, Detail 타임라인·수신거부 토글 동작
 - [ ] 정규화/파서 단위 테스트 통과
+- [ ] Playwright headless E2E `e2e/phase3-contacts.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)

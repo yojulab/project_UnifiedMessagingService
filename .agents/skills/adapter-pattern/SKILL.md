@@ -163,3 +163,7 @@ export class AligoAdapter implements IMessagingAdapter {
 
 - **카카오 알림톡 → LMS 자동 전환**: 카카오 어댑터에서 발송 실패 시, 같은 `configData`의 SMS 어댑터로 재시도한다.
 - Fallback 로직은 발송 엔진(dispatch 서비스 레이어)에서 처리하며, 어댑터 자체는 단일 책임만 가진다.
+
+## 완료 조건
+
+- [ ] Playwright headless E2E `e2e/phase2-platform.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)

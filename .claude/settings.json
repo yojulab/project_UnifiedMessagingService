@@ -9,11 +9,17 @@
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
       "Bash(npx vitest:*)",
-      "Bash(mongosh:*)"
+      "Bash(mongosh:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npx playwright install:*)"
     ],
     "deny": [
       "Read(./.env.local)",
-      "Read(./.env.production)"
+      "Read(./.env.production)",
+      "Bash(npx playwright test --headed:*)",
+      "Bash(npx playwright test --ui:*)",
+      "Bash(npx playwright test --debug:*)"
     ]
   }
 }

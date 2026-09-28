@@ -234,3 +234,7 @@ function generateUnsubToken(contactId: string, email: string): string {
 - 개별 발송 실패 시 해당 `DispatchLog`만 FAILED로 기록하고, 다음 건으로 진행.
 - 전체 실패율이 50%를 초과하면 `DispatchJob.status = 'FAILED'`로 변경.
 - 일부 성공 + 일부 실패 = `PARTIAL` 상태.
+
+## 완료 조건
+
+- [ ] Playwright headless E2E `e2e/phase4-campaign.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)

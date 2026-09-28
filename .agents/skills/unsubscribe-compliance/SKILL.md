@@ -88,3 +88,7 @@ List-Unsubscribe-Post: List-Unsubscribe=One-Click
 - [ ] 토큰 위변조 시 400, 정상 토큰은 확인 페이지 → POST 후 거부 반영
 - [ ] 발송 메일 원본에 `List-Unsubscribe`, `List-Unsubscribe-Post` 헤더 존재
 - [ ] 재업로드(overwrite)로 거부 상태가 해제되지 않음
+
+## 완료 조건
+
+- [ ] Playwright headless E2E `e2e/phase4-campaign`, `phase5-analytics.spec.ts` 통과 (`e2e-playwright` 스킬 §6 필수 시나리오)
