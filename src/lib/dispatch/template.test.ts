@@ -11,6 +11,14 @@ describe('resolveTemplate', () => {
     });
     expect(r).toBe('이관열님 (LEMON.IT/대표) VIP {unknown}');
   });
+
+  it('#{name}, ${name}, {{name}} 및 한국어 태그(#{이름}, {회사} 등)도 정확히 치환한다', () => {
+    const c = { name: '홍길동', company: '에이엑스' };
+    expect(resolveTemplate('안녕하세요 #{name}님!', c)).toBe('안녕하세요 홍길동님!');
+    expect(resolveTemplate('안녕하세요 ${name}님!', c)).toBe('안녕하세요 홍길동님!');
+    expect(resolveTemplate('안녕하세요 {{name}}님!', c)).toBe('안녕하세요 홍길동님!');
+    expect(resolveTemplate('안녕하세요 #{이름}님 (#{회사})', c)).toBe('안녕하세요 홍길동님 (에이엑스)');
+  });
 });
 
 describe('SMS 바이트/유형', () => {

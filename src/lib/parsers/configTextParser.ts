@@ -57,10 +57,91 @@ export interface TemplateCheck {
   unknown: string[];
 }
 
-export function checkAgainstTemplate(parsed: ParsedConfig, template: Record<string, { required: boolean }>): TemplateCheck {
+const PROVIDER_PREFIX_RE = /^(zoho|aws|ses|aligo|solapi|mail|email|sms|lms|kakao)[_\-\s]?/i;
+
+const ALIAS_MAP: Record<string, string> = {
+  fromemail: 'senderAddress',
+  senderemail: 'senderAddress',
+  fromaddress: 'senderAddress',
+  senderaddress: 'senderAddress',
+  from: 'senderAddress',
+  sender: 'senderAddress',
+  fromphone: 'senderNumber',
+  senderphone: 'senderNumber',
+  callerid: 'senderNumber',
+  fromnumber: 'senderNumber',
+  sendernumber: 'senderNumber',
+  sendphone: 'senderNumber',
+  key: 'apiKey',
+  apikey: 'apiKey',
+  apisecret: 'apiSecret',
+  clientid: 'clientId',
+  clientsecret: 'clientSecret',
+  refreshtoken: 'refreshToken',
+  accountid: 'accountId',
+  accesskeyid: 'accessKeyId',
+  accesskey: 'accessKeyId',
+  secretaccesskey: 'secretAccessKey',
+  secretkey: 'secretAccessKey',
+};
+
+/** 템플릿의 실제 키로 매핑 (공급사 접두어 제거 및 별칭 해석) */
+export function resolveConfigKey(rawKey: string, template: Record<string, unknown>): string {
+  if (rawKey in template) return rawKey;
+  const camel = toCamelCase(rawKey);
+  if (camel in template) return camel;
+
+  const lower = rawKey.toLowerCase().replace(/[_\-\s]/g, '');
+  for (const tKey of Object.keys(template)) {
+    if (tKey.toLowerCase() === lower) return tKey;
+  }
+
+  // 접두어 제거 후 비교 (예: zohoClientId -> clientId)
+  const stripped = rawKey.replace(PROVIDER_PREFIX_RE, '');
+  const strippedCamel = toCamelCase(stripped);
+  if (strippedCamel in template) return strippedCamel;
+
+  const strippedLower = stripped.toLowerCase().replace(/[_\-\s]/g, '');
+  for (const tKey of Object.keys(template)) {
+    if (tKey.toLowerCase() === strippedLower) return tKey;
+  }
+
+  // 별칭 매핑 (예: zohoFromEmail -> fromEmail -> senderAddress)
+  if (ALIAS_MAP[strippedLower] && ALIAS_MAP[strippedLower] in template) {
+    return ALIAS_MAP[strippedLower];
+  }
+  if (ALIAS_MAP[lower] && ALIAS_MAP[lower] in template) {
+    return ALIAS_MAP[lower];
+  }
+
+  return camel;
+}
+
+/** 템플릿 기준으로 파싱된 설정을 매핑하고 유효성을 점검한다 */
+export function matchConfigToTemplate(
+  parsed: ParsedConfig,
+  template: Record<string, { required: boolean }>,
+): { mapped: ParsedConfig; check: TemplateCheck } {
+  const mapped: ParsedConfig = {};
+  const unknown: string[] = [];
+
+  for (const [k, v] of Object.entries(parsed)) {
+    const resolved = resolveConfigKey(k, template);
+    if (resolved in template) {
+      mapped[resolved] = v;
+    } else {
+      unknown.push(k);
+    }
+  }
+
   const missing = Object.entries(template)
-    .filter(([k, f]) => f.required && !parsed[k]?.trim())
+    .filter(([k, f]) => f.required && !mapped[k]?.trim())
     .map(([k]) => k);
-  const unknown = Object.keys(parsed).filter((k) => !(k in template));
-  return { missing, unknown };
+
+  return { mapped, check: { missing, unknown } };
+}
+
+export function checkAgainstTemplate(parsed: ParsedConfig, template: Record<string, { required: boolean }>): TemplateCheck {
+  const { check } = matchConfigToTemplate(parsed, template);
+  return check;
 }

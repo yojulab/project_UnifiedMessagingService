@@ -66,4 +66,14 @@ describe('suggestMapping', () => {
       notes: '메모',
     });
   });
+
+  it('실제 교육과정 수강생 명단 헤더를 정확히 자동 추천한다', () => {
+    const headers = ['과정명(폴더명)', '수강생명', '연락처(전화번호)', '이메일 1', '이메일 2', '출처 파일명'];
+    expect(suggestMapping(headers)).toEqual({
+      name: '수강생명',
+      phones: ['연락처(전화번호)'],
+      emails: ['이메일 1', '이메일 2'],
+      notes: '출처 파일명',
+    });
+  });
 });

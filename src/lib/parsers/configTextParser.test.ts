@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkAgainstTemplate, parseConfigText, toCamelCase } from './configTextParser';
+import { checkAgainstTemplate, matchConfigToTemplate, parseConfigText, toCamelCase } from './configTextParser';
 
 describe('toCamelCase', () => {
   it.each([
@@ -35,5 +35,32 @@ describe('parseConfigText', () => {
   it('템플릿 대비 누락/알 수 없는 키를 찾는다', () => {
     const tpl = { apiKey: { required: true }, userId: { required: true }, optOutNumber: { required: false } };
     expect(checkAgainstTemplate({ apiKey: 'a', foo: 'b' }, tpl)).toEqual({ missing: ['userId'], unknown: ['foo'] });
+  });
+
+  it('공급사 접두어(ZOHO_) 및 별칭(FROM_EMAIL -> senderAddress)을 템플릿 키로 자동 매핑한다', () => {
+    const raw = `ZOHO_CLIENT_ID=client-123
+ZOHO_CLIENT_SECRET=secret-456
+ZOHO_FROM_EMAIL=contact@axfoundly.com
+ZOHO_REFRESH_TOKEN=token-789
+ZOHO_ACCOUNT_ID=acc-001
+ZOHO_GRANT_CODE=`;
+    const parsed = parseConfigText(raw);
+    const tpl = {
+      clientId: { required: true },
+      clientSecret: { required: true },
+      refreshToken: { required: true },
+      accountId: { required: true },
+      senderAddress: { required: true },
+    };
+    const { mapped, check } = matchConfigToTemplate(parsed, tpl);
+    expect(mapped).toEqual({
+      clientId: 'client-123',
+      clientSecret: 'secret-456',
+      senderAddress: 'contact@axfoundly.com',
+      refreshToken: 'token-789',
+      accountId: 'acc-001',
+    });
+    expect(check.missing).toEqual([]);
+    expect(check.unknown).toEqual(['zohoGrantCode']);
   });
 });

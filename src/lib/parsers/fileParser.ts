@@ -91,10 +91,10 @@ export function parseFile(buf: Buffer, fileName: string): ParsedFile {
 const SUGGEST: { field: 'name' | 'phones' | 'emails' | 'company' | 'department' | 'notes'; re: RegExp }[] = [
   { field: 'emails', re: /메일|e-?mail/i },
   { field: 'phones', re: /전화|연락처|휴대|핸드폰|mobile|phone|tel|cell/i },
-  { field: 'name', re: /^(이름|성명|성함|고객명|name|full ?name)$|이름|성명/i },
+  { field: 'name', re: /^(이름|성명|성함|고객명|수강생명|학생명|회원명|사용자명|담당자명|name|full ?name)$|이름|성명|성함|수강생|학생|회원/i },
   { field: 'company', re: /회사|기업|소속|company|organization/i },
   { field: 'department', re: /부서|직책|직급|직위|department|title|position/i },
-  { field: 'notes', re: /메모|비고|note|memo|comment/i },
+  { field: 'notes', re: /메모|비고|출처|note|memo|comment|source/i },
 ];
 
 export interface MappingSuggestion {

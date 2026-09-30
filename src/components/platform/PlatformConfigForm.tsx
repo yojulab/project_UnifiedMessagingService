@@ -7,7 +7,7 @@ import { Alert } from '@/components/ui/Feedback';
 import { useToast } from '@/components/ui/Toast';
 import { api, errMsg } from '@/lib/client/api';
 import { CHANNEL_LABEL } from '@/lib/client/format';
-import { checkAgainstTemplate, parseConfigText } from '@/lib/parsers/configTextParser';
+import { matchConfigToTemplate, parseConfigText } from '@/lib/parsers/configTextParser';
 import type { PlatformConfigView, ProviderCode, TestResult } from './types';
 
 interface Props {
@@ -43,11 +43,10 @@ export function PlatformConfigForm({ providers, editing, onSaved, onCancel }: Pr
     }
     try {
       const parsed = parseConfigText(text);
-      const check = checkAgainstTemplate(parsed, template);
-      const known = Object.fromEntries(Object.entries(parsed).filter(([k]) => k in template));
-      setValues((v) => ({ ...v, ...known }));
-      const parts = [`${Object.keys(known).length}개 항목을 채웠습니다.`];
-      if (check.missing.length) parts.push(`누락된 필수 항목: ${check.missing.map((k) => template[k]?.label ?? k).join(', ')}`);
+      const { mapped, check } = matchConfigToTemplate(parsed, template);
+      setValues((v) => ({ ...v, ...mapped }));
+      const parts = [`${Object.keys(mapped).length}개 항목을 채웠습니다.`];
+      if (check.missing.length) parts.push(`누락된 필수 항목: ${check.missing.map((k: string) => template[k]?.label ?? k).join(', ')}`);
       if (check.unknown.length) parts.push(`알 수 없는 키(무시됨): ${check.unknown.join(', ')}`);
       setBulkMsg({ tone: check.missing.length || check.unknown.length ? 'warning' : 'success', text: parts.join(' · ') });
     } catch (err) {

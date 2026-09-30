@@ -21,17 +21,26 @@ export interface TemplateContact {
 
 export const TEMPLATE_TAGS = ['{name}', '{company}', '{department}'] as const;
 
-/** {name} {company} {department} 및 customFields 키 치환 */
+/** {name} {company} {department} 및 #{name}, ${name}, {{name}}, 한국어 태그({이름}, {회사} 등), customFields 키 치환 */
 export function resolveTemplate(template: string, c: TemplateContact): string {
   const vars: Record<string, string> = {
     name: c.name ?? '',
+    이름: c.name ?? '',
+    고객명: c.name ?? '',
+    수강생명: c.name ?? '',
     company: c.company ?? '',
+    회사: c.company ?? '',
+    회사명: c.company ?? '',
     department: c.department ?? '',
+    부서: c.department ?? '',
+    직책: c.department ?? '',
   };
   for (const [k, v] of Object.entries(c.customFields ?? {})) {
     if (!(k in vars)) vars[k] = v === null || v === undefined ? '' : String(v);
   }
-  return template.replace(/\{([^{}\s]+)\}/g, (m, key: string) => (key in vars ? vars[key] : m));
+  return template
+    .replace(/\{\{([^{}\s]+)\}\}/g, (m, key: string) => (key in vars ? vars[key] : m))
+    .replace(/(?:#|\$)?\{([^{}\s]+)\}/g, (m, key: string) => (key in vars ? vars[key] : m));
 }
 
 export function optOutLine(optOutNumber: string): string {
