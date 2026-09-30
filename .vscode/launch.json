@@ -8,7 +8,7 @@
       "name": "① 서버 디버그 (dev :3110)",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev -- -p 3110 --inspect",
+      "command": "NODE_OPTIONS='' npm run dev -- -p 3110",
       "env": {
         "NEXTAUTH_URL": "http://localhost:3110",
         "DRY_RUN": "true",

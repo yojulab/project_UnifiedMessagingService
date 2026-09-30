@@ -59,3 +59,13 @@ mongosh "mongodb://host.docker.internal:27017/UnifiedMessagingService_dev"   # D
 
 코드 변경 후에는 `tsc --noEmit` → `lint` → 단위 테스트 → 영향 spec E2E 순으로 통과시킨 뒤 완료를 보고한다. E2E 는 dev DB(`UnifiedMessagingService_dev`)를 절대 사용하지 않는다.
 포트 3100 에 서버를 수동으로 띄웠다면 E2E 실행 전에 반드시 종료한다 (`next-server` 프로세스 이름으로 남는다).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
