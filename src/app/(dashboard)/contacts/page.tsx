@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { SelectField, TextField } from '@/components/ui/Field';
 import { Alert, EmptyState, PageHeader, Skeleton } from '@/components/ui/Feedback';
 import { MultiSelect } from '@/components/ui/MultiSelect';
+import { useToast } from '@/components/ui/Toast';
 import { api, errMsg, qs } from '@/lib/client/api';
 import { fmtNum } from '@/lib/client/format';
 
@@ -17,6 +18,7 @@ interface ListResponse { items: ContactListItem[]; total: number; nextCursor: st
 interface Facets { sourceNames: string[]; labels: string[] }
 
 export default function ContactsPage(): ReactElement {
+  const toast = useToast();
   const [q, setQ] = useState('');
   const [debouncedQ, setDebouncedQ] = useState('');
   const [sources, setSources] = useState<string[]>([]);
@@ -25,6 +27,7 @@ export default function ContactsPage(): ReactElement {
   const [selected, setSelected] = useState<string | null>(null);
   const [moreError, setMoreError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(q), 300);
@@ -43,6 +46,31 @@ export default function ContactsPage(): ReactElement {
   const cursor = data?.[0].nextCursor ?? null;
   const facets = data?.[1] ?? { sourceNames: [], labels: [] };
   const error = loadError ?? moreError;
+
+  const hasFilter = Boolean(debouncedQ || sources.length > 0 || labels.length > 0 || unsub !== 'all');
+
+  async function deleteAll(): Promise<void> {
+    if (!total || total === 0) return;
+    const msg = hasFilter
+      ? `현재 검색/필터 조건에 해당하는 연락처 ${fmtNum(total)}명을 모두 삭제하시겠습니까?\n(전체 연락처를 삭제하려면 검색/필터를 초기화하세요.)\n이 작업은 취소할 수 없습니다.`
+      : `등록된 모든 연락처 (총 ${fmtNum(total)}명)를 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.`;
+    if (!window.confirm(msg)) return;
+
+    setDeleting(true);
+    try {
+      const endpoint = hasFilter
+        ? `/api/contacts${qs({ q: debouncedQ, sourceName: sources, label: labels, unsub: unsub === 'all' ? null : unsub })}`
+        : '/api/contacts?all=true';
+      const r = await api<{ deletedCount: number }>(endpoint, { method: 'DELETE' });
+      toast(`${fmtNum(r.deletedCount)}명의 연락처를 삭제했습니다.`, 'success');
+      setSelected(null);
+      await reload();
+    } catch (err) {
+      toast(errMsg(err), 'error');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function more(): Promise<void> {
     if (!cursor) return;
@@ -67,6 +95,16 @@ export default function ContactsPage(): ReactElement {
         descUiId="CNT-TXT-001"
         actions={
           <>
+            <Button
+              data-ui-id="CNT-BTN-004"
+              variant="danger"
+              size="md"
+              disabled={!total || total === 0}
+              loading={deleting}
+              onClick={() => void deleteAll()}
+            >
+              {hasFilter ? '필터 결과 전체 삭제' : '전체 삭제'}
+            </Button>
             <Link data-ui-id="CNT-BTN-001" href="/analytics/unsubscribes" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">수신거부 관리</Link>
             <Link data-ui-id="CNT-BTN-002" href="/contacts/upload" className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">파일 업로드</Link>
           </>

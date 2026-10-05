@@ -38,3 +38,38 @@ export const GET = withAuth(async (req, _ctx, user) => {
     nextCursor: hasMore ? String(items[items.length - 1]._id) : null,
   });
 });
+
+/** 연락처 일괄/전체 삭제 */
+export const DELETE = withAuth(async (req, _ctx, user) => {
+  const sp = req.nextUrl.searchParams;
+  const all = sp.get('all') === 'true';
+  const ids = sp.getAll('id').filter((id) => Types.ObjectId.isValid(id));
+
+  let filter: Record<string, unknown>;
+  if (ids.length > 0) {
+    const oids = ids.map((id) => new Types.ObjectId(id));
+    filter = { _id: { $in: oids }, userId: user.oid };
+  } else if (all) {
+    filter = { userId: user.oid };
+  } else {
+    const unsubParam = sp.get('unsub');
+    let suppressedValues: { phones: string[]; emails: string[] } | undefined;
+    if (unsubParam === 'only') {
+      const [phones, emails] = await Promise.all([
+        Suppression.distinct('value', { userId: user.oid, channel: { $in: ['SMS', 'KAKAO'] } }),
+        Suppression.distinct('value', { userId: user.oid, channel: 'EMAIL' }),
+      ]);
+      suppressedValues = { phones: phones as string[], emails: emails as string[] };
+    }
+    filter = buildContactFilter(user.oid, {
+      q: sp.get('q') ?? '',
+      sourceNames: sp.getAll('sourceName').filter(Boolean),
+      labels: sp.getAll('label').filter(Boolean),
+      unsub: unsubParam === 'exclude' || unsubParam === 'only' ? unsubParam : 'all',
+      suppressedValues,
+    });
+  }
+
+  const res = await Contact.deleteMany(filter);
+  return ok({ deletedCount: res.deletedCount });
+});

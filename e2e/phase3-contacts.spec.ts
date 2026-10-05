@@ -198,6 +198,44 @@ test.describe('Phase 3 — 연락처 허브', () => {
     await ctx.dispose();
   });
 
+  test('전체 삭제: 검색/필터 결과 삭제 및 등록된 모든 연락처 전체 삭제 (CNT-BTN-004)', async ({ page }) => {
+    const ctx = await apiContext(AUTH_A);
+    const tag1 = uniqueTag('DEL1');
+    const tag2 = uniqueTag('DEL2');
+    await importContacts(ctx, csv(`${tag1}.csv`, contactRows([{ name: `삭제대상1_${tag1}`, p1: uniquePhone() }])), { labels: [tag1] });
+    await importContacts(ctx, csv(`${tag2}.csv`, contactRows([{ name: `삭제대상2_${tag2}`, p1: uniquePhone() }])), { labels: [tag2] });
+
+    await page.goto('/contacts');
+    const delBtn = page.locator('[data-ui-id="CNT-BTN-004"]');
+    await expect(delBtn).toBeVisible();
+
+    // 1) 필터 적용 상태에서 필터 결과 삭제
+    await page.getByRole('textbox', { name: '검색' }).fill(tag1);
+    await expect(delBtn).toHaveText('필터 결과 전체 삭제');
+
+    // 다이얼로그 확인 핸들러 등록
+    page.once('dialog', (d) => void d.accept());
+    await delBtn.click();
+
+    // 토스트 및 목록 확인
+    await expect(page.getByText('1명의 연락처를 삭제했습니다.')).toBeVisible();
+    await expect(page.getByText('연락처가 없습니다.')).toBeVisible();
+
+    // 검색 필터 초기화 후 남아있는 tag2 확인
+    await page.getByRole('textbox', { name: '검색' }).fill('');
+    await expect(page.getByText(`삭제대상2_${tag2}`)).toBeVisible();
+    await expect(delBtn).toHaveText('전체 삭제');
+
+    // 2) 전체 삭제 수행
+    page.once('dialog', (d) => void d.accept());
+    await delBtn.click();
+    await expect(page.getByText('연락처를 삭제했습니다.')).toBeVisible();
+    await expect(page.getByText('연락처가 없습니다.')).toBeVisible();
+    await expect(delBtn).toBeDisabled();
+
+    await ctx.dispose();
+  });
+
   test.describe('테넌트 격리', () => {
     test.use({ storageState: AUTH_B });
 
