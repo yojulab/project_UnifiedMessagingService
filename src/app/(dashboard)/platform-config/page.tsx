@@ -61,12 +61,14 @@ export default function PlatformConfigPage(): ReactElement {
     <div>
       <PageHeader
         title="플랫폼 연동 설정"
+        titleUiId="PLT-TIT-001"
         description="이메일·문자 공급사 API Key 를 등록합니다. 비밀 값은 AES-256-GCM 으로 암호화되어 저장됩니다."
-        actions={mode === 'list' ? <Button onClick={() => setMode('new')}>새 플랫폼 추가</Button> : undefined}
+        descUiId="PLT-TXT-001"
+        actions={mode === 'list' ? <Button data-ui-id="PLT-BTN-001" onClick={() => setMode('new')}>새 플랫폼 추가</Button> : undefined}
       />
       {error && <Alert tone="error">{error}</Alert>}
       {mode !== 'list' && (
-        <div className="mb-6">
+        <div data-ui-id="PLT-SEC-001" className="mb-6">
           <PlatformConfigForm
             key={typeof mode === 'string' ? mode : mode.id}
             providers={providers}
@@ -81,13 +83,13 @@ export default function PlatformConfigPage(): ReactElement {
         <EmptyState title="등록된 발송 플랫폼이 없습니다.">‘새 플랫폼 추가’로 Zoho, AWS SES, 알리고, 솔라피 등을 연동하세요.</EmptyState>
       )}
       {configs && configs.length > 0 && (
-        <ul className="grid gap-4 lg:grid-cols-2" aria-label="등록된 플랫폼">
+        <ul data-ui-id="PLT-SEC-002" className="grid gap-4 lg:grid-cols-2" aria-label="등록된 플랫폼">
           {configs.map((c) => (
-            <li key={c.id} className="card space-y-3" data-testid="platform-card">
+            <li key={c.id} data-ui-id="PLT-SEC-003" className="card space-y-3" data-testid="platform-card">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold">{c.name}</p>
-                  <p className="text-xs text-muted-foreground">{CHANNEL_LABEL[c.channel]} · {c.providerName}</p>
+                  <p data-ui-id="PLT-TXT-002" className="font-semibold">{c.name}</p>
+                  <p data-ui-id="PLT-TXT-003" className="text-xs text-muted-foreground">{CHANNEL_LABEL[c.channel]} · {c.providerName}</p>
                 </div>
                 <div className="flex gap-1">
                   {c.isDefault && <Badge tone="primary">기본</Badge>}
@@ -104,10 +106,10 @@ export default function PlatformConfigPage(): ReactElement {
               </dl>
               {c.lastTestMessage && <p className="text-xs text-muted-foreground">최근 테스트({fmtDate(c.lastTestedAt)}): {c.lastTestMessage}</p>}
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="secondary" loading={busyId === c.id} onClick={() => void test(c)}>연결 테스트</Button>
-                <Button size="sm" variant="secondary" onClick={() => setMode(c)}>수정</Button>
-                {!c.isDefault && <Button size="sm" variant="ghost" onClick={() => void makeDefault(c)}>기본으로 지정</Button>}
-                <Button size="sm" variant="ghost" className="text-danger" onClick={() => void remove(c)}>삭제</Button>
+                <Button data-ui-id="PLT-BTN-002" size="sm" variant="secondary" loading={busyId === c.id} onClick={() => void test(c)}>연결 테스트</Button>
+                <Button data-ui-id="PLT-BTN-003" size="sm" variant="secondary" onClick={() => setMode(c)}>수정</Button>
+                {!c.isDefault && <Button data-ui-id="PLT-BTN-004" size="sm" variant="ghost" onClick={() => void makeDefault(c)}>기본으로 지정</Button>}
+                <Button data-ui-id="PLT-BTN-005" size="sm" variant="ghost" className="text-danger" onClick={() => void remove(c)}>삭제</Button>
               </div>
             </li>
           ))}

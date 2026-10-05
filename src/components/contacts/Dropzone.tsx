@@ -8,10 +8,11 @@ interface Props {
   hint?: string;
   onFile: (file: File) => void;
   disabled?: boolean;
+  'data-ui-id'?: string;
 }
 
 /** 드래그앤드롭 + 클릭 선택 파일 입력 */
-export function Dropzone({ accept, label, hint, onFile, disabled }: Props): ReactElement {
+export function Dropzone({ accept, label, hint, onFile, disabled, 'data-ui-id': uiId }: Props): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
   const onDrop = (e: DragEvent): void => {
@@ -22,6 +23,7 @@ export function Dropzone({ accept, label, hint, onFile, disabled }: Props): Reac
   };
   return (
     <div
+      data-ui-id={uiId}
       onDragOver={(e) => { e.preventDefault(); setOver(true); }}
       onDragLeave={() => setOver(false)}
       onDrop={onDrop}
@@ -29,7 +31,7 @@ export function Dropzone({ accept, label, hint, onFile, disabled }: Props): Reac
     >
       <p className="font-medium">{label}</p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-      <button type="button" disabled={disabled} onClick={() => inputRef.current?.click()} className="mt-4 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">
+      <button type="button" disabled={disabled} data-ui-id={uiId ? `${uiId}-BTN` : undefined} onClick={() => inputRef.current?.click()} className="mt-4 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted disabled:opacity-50">
         파일 선택
       </button>
       <input

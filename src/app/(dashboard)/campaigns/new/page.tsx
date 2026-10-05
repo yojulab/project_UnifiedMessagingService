@@ -124,7 +124,7 @@ export default function NewCampaignPage(): ReactElement {
   }
 
   const summary = estimate && (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="발송 견적">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="발송 견적" data-ui-id="CMP-SEC-ESTIMATE">
       <Stat label="대상 고객 수" value={<span data-testid="target-count">{fmtNum(estimate.targetCount)}명</span>} />
       <Stat label="예상 발송 건수" value={<span data-testid="message-count">{fmtNum(estimate.messageCount)}건</span>} sub="다중 연락처 포함" />
       <Stat label="수신거부 제외" value={`${fmtNum(estimate.blockedCount)}건`} sub="번호·이메일 단위" />
@@ -134,13 +134,13 @@ export default function NewCampaignPage(): ReactElement {
 
   return (
     <div>
-      <PageHeader title="새 캠페인" description="4단계로 메시지를 발송합니다." />
+      <PageHeader title="새 캠페인" description="4단계로 메시지를 발송합니다." titleUiId="CMP-TIT-002" descUiId="CMP-TXT-002" />
       <Stepper steps={STEPS} current={step} />
       {error && <div className="mb-4"><Alert tone="error">{error}</Alert></div>}
       {!platforms && !error && <Spinner />}
 
       {platforms && step === 1 && (
-        <section className="card space-y-5" aria-label="Step 1 채널 및 플랫폼 선택">
+        <section className="card space-y-5" aria-label="Step 1 채널 및 플랫폼 선택" data-ui-id="CMP-SEC-STEP1">
           <fieldset>
             <legend className="field-label">발송 채널</legend>
             <div className="flex flex-wrap gap-4">
@@ -153,20 +153,20 @@ export default function NewCampaignPage(): ReactElement {
               <Link href="/platform-config" className="font-medium text-primary underline">플랫폼 설정 바로가기 →</Link>
             </Alert>
           ) : (
-            <SelectField label="발송 플랫폼" value={platformId} onChange={(e) => setPlatformId(e.target.value)}>
+            <SelectField label="발송 플랫폼" value={platformId} onChange={(e) => setPlatformId(e.target.value)} data-ui-id="CMP-SEL-PLATFORM">
               {groupPlatforms.map((p) => (
                 <option key={p.id} value={p.id}>{p.name} ({CHANNEL_LABEL[p.channel]} · {p.providerName}{p.configData.senderAddress ? ` · ${p.configData.senderAddress}` : p.configData.senderNumber ? ` · ${p.configData.senderNumber}` : ''}){p.isDefault ? ' — 기본' : ''}</option>
               ))}
             </SelectField>
           )}
           {group === 'KAKAO' && groupPlatforms.length > 0 && (
-            <div className="space-y-3 rounded-md border border-border p-3">
+            <div className="space-y-3 rounded-md border border-border p-3" data-ui-id="CMP-SEC-FALLBACK">
               <Checkbox label="알림톡 발송 실패 시 LMS 로 자동 전환" checked={fallback} onChange={(e) => setFallback(e.target.checked)} />
               {fallback && (
                 smsPlatforms.length === 0
                   ? <Alert tone="warning">대체 발송에 사용할 SMS/LMS 플랫폼이 없습니다.</Alert>
                   : (
-                    <SelectField label="LMS 대체 플랫폼" value={fallbackId} onChange={(e) => setFallbackId(e.target.value)}>
+                    <SelectField label="LMS 대체 플랫폼" value={fallbackId} onChange={(e) => setFallbackId(e.target.value)} data-ui-id="CMP-SEL-FALLBACK">
                       <option value="">선택하세요</option>
                       {smsPlatforms.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.providerName})</option>)}
                     </SelectField>
@@ -178,7 +178,7 @@ export default function NewCampaignPage(): ReactElement {
       )}
 
       {step === 2 && (
-        <section className="card space-y-5" aria-label="Step 2 발송 대상 설정">
+        <section className="card space-y-5" aria-label="Step 2 발송 대상 설정" data-ui-id="CMP-SEC-STEP2">
           <fieldset>
             <legend className="field-label">타겟팅 모드</legend>
             <div className="flex flex-wrap gap-4">
@@ -189,9 +189,9 @@ export default function NewCampaignPage(): ReactElement {
           </fieldset>
           {filter.mode !== 'ALL' && (
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField label="N (명)" type="number" min={1} value={filter.limit ?? ''} onChange={(e) => setFilter({ ...filter, limit: e.target.value ? Math.max(1, Number(e.target.value)) : null })} />
+              <TextField label="N (명)" type="number" min={1} value={filter.limit ?? ''} onChange={(e) => setFilter({ ...filter, limit: e.target.value ? Math.max(1, Number(e.target.value)) : null })} data-ui-id="CMP-INP-LIMIT" />
               {filter.mode === 'TOP_N' && (
-                <SelectField label="정렬 기준" value={filter.sort} onChange={(e) => setFilter({ ...filter, sort: e.target.value as TargetFilter['sort'] })}>
+                <SelectField label="정렬 기준" value={filter.sort} onChange={(e) => setFilter({ ...filter, sort: e.target.value as TargetFilter['sort'] })} data-ui-id="CMP-SEL-SORT">
                   <option value="createdAt_desc">최신 등록순</option>
                   <option value="createdAt_asc">오래된 등록순</option>
                   <option value="name_asc">이름순</option>
@@ -200,9 +200,9 @@ export default function NewCampaignPage(): ReactElement {
             </div>
           )}
           <div className="grid gap-4 md:grid-cols-3">
-            <MultiSelect label="출처 파일" options={facets.sourceNames} value={filter.sourceNames ?? []} onChange={(v) => setFilter({ ...filter, sourceNames: v })} />
-            <MultiSelect label="라벨" options={facets.labels} value={filter.labels ?? []} onChange={(v) => setFilter({ ...filter, labels: v })} />
-            <TextField label="키워드 (이름·회사·부서)" value={filter.keywords ?? ''} onChange={(e) => setFilter({ ...filter, keywords: e.target.value })} />
+            <MultiSelect label="출처 파일" options={facets.sourceNames} value={filter.sourceNames ?? []} onChange={(v) => setFilter({ ...filter, sourceNames: v })} data-ui-id="CMP-SEL-SOURCES" />
+            <MultiSelect label="라벨" options={facets.labels} value={filter.labels ?? []} onChange={(v) => setFilter({ ...filter, labels: v })} data-ui-id="CMP-SEL-LABELS" />
+            <TextField label="키워드 (이름·회사·부서)" value={filter.keywords ?? ''} onChange={(e) => setFilter({ ...filter, keywords: e.target.value })} data-ui-id="CMP-INP-KEYWORDS" />
           </div>
           {estimating && !estimate && <Spinner label="대상 계산 중" />}
           {summary}
@@ -212,10 +212,10 @@ export default function NewCampaignPage(): ReactElement {
       )}
 
       {step === 3 && (
-        <section className="card space-y-5" aria-label="Step 3 메시지 작성">
-          <TextField label="캠페인명" required value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 10월 신제품 안내" />
-          {channel === 'EMAIL' && <TextField label="이메일 제목" required value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="{name}님, 안녕하세요" />}
-          {channel === 'LMS' && <TextField label="LMS 제목 (선택)" value={subject} onChange={(e) => setSubject(e.target.value)} />}
+        <section className="card space-y-5" aria-label="Step 3 메시지 작성" data-ui-id="CMP-SEC-STEP3">
+          <TextField label="캠페인명" required value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 10월 신제품 안내" data-ui-id="CMP-INP-NAME" />
+          {channel === 'EMAIL' && <TextField label="이메일 제목" required value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="{name}님, 안녕하세요" data-ui-id="CMP-INP-SUBJECT" />}
+          {channel === 'LMS' && <TextField label="LMS 제목 (선택)" value={subject} onChange={(e) => setSubject(e.target.value)} data-ui-id="CMP-INP-SUBJECT" />}
           <div>
             <TextAreaField
               ref={bodyRef}
@@ -225,6 +225,7 @@ export default function NewCampaignPage(): ReactElement {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder={'{name}님 안녕하세요,\n\n...메시지 내용...'}
+              data-ui-id="CMP-INP-BODY"
             />
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
               <span className="text-muted-foreground">치환 태그:</span>
@@ -235,7 +236,7 @@ export default function NewCampaignPage(): ReactElement {
           {channel === 'EMAIL' && <Checkbox label="HTML 본문" checked={isHtml} onChange={(e) => setIsHtml(e.target.checked)} />}
           {channel === 'EMAIL' && <Checkbox label="광고성 메일 (제목 앞 (광고) 표기 + 발신자 정보 표기)" checked={isAd} onChange={(e) => setIsAd(e.target.checked)} />}
           {isSms && <Checkbox label="광고성 메시지 ((광고) 표기 + 080 수신거부 자동 삽입)" checked={isAd} onChange={(e) => setIsAd(e.target.checked)} />}
-          <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-sm" aria-label="자동 삽입 영역">
+          <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-sm" aria-label="자동 삽입 영역" data-ui-id="CMP-SEC-AUTO-INSERT">
             <p className="font-medium">⚡ 자동 삽입 영역</p>
             {channel === 'EMAIL' && isAd && <p className="mt-1 text-xs">광고성 메일: 제목 앞 <strong>(광고)</strong> 표기와 발신자 명칭·주소가 자동으로 들어갑니다 (정보통신망법).</p>}
             {channel === 'EMAIL' && platform?.provider !== 'ZOHO' && <p className="mt-1 text-xs">본문 하단 수신거부 링크 + RFC 8058 List-Unsubscribe / List-Unsubscribe-Post 헤더가 수신자별로 자동 부착됩니다.</p>}
@@ -256,8 +257,8 @@ export default function NewCampaignPage(): ReactElement {
       )}
 
       {step === 4 && estimate && (
-        <section className="card space-y-5" aria-label="Step 4 최종 검토">
-          <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto,1fr]">
+        <section className="card space-y-5" aria-label="Step 4 최종 검토" data-ui-id="CMP-SEC-STEP4">
+          <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto,1fr]" data-ui-id="CMP-SEC-SUMMARY">
             <dt className="text-muted-foreground">캠페인</dt><dd className="font-medium">{name}</dd>
             <dt className="text-muted-foreground">채널</dt><dd>{CHANNEL_LABEL[channel]} ({platform?.name}){fallback && channel === 'KAKAO' ? ' · 실패 시 LMS 대체' : ''}</dd>
             <dt className="text-muted-foreground">대상</dt><dd>{fmtNum(estimate.targetCount)}명 → {fmtNum(estimate.messageCount)}건 발송</dd>
@@ -273,7 +274,7 @@ export default function NewCampaignPage(): ReactElement {
             <div className="flex flex-wrap items-center gap-4">
               <Radio name="when" label="즉시 발송" checked={when === 'now'} onChange={() => setWhen('now')} />
               <Radio name="when" label="예약 발송" checked={when === 'later'} onChange={() => setWhen('later')} />
-              {when === 'later' && <TextField label="예약 일시" type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} wrapClassName="min-w-[220px]" />}
+              {when === 'later' && <TextField label="예약 일시" type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} wrapClassName="min-w-[220px]" data-ui-id="CMP-INP-SCHEDULED" />}
             </div>
           </fieldset>
         </section>
@@ -281,13 +282,13 @@ export default function NewCampaignPage(): ReactElement {
 
       <div className="mt-6 flex flex-wrap justify-between gap-2">
         <div className="flex gap-2">
-          {step > 1 && <Button variant="secondary" onClick={() => setStep(step - 1)}>← 이전</Button>}
-          <Link href="/campaigns" className="rounded-md px-4 py-2 text-sm hover:bg-muted">취소</Link>
+          {step > 1 && <Button data-ui-id="CMP-BTN-PREV" variant="secondary" onClick={() => setStep(step - 1)}>← 이전</Button>}
+          <Link href="/campaigns" data-ui-id="CMP-BTN-CANCEL" className="rounded-md px-4 py-2 text-sm hover:bg-muted">취소</Link>
         </div>
         {step < 4 ? (
-          <Button onClick={() => setStep(step + 1)} disabled={!canNext || (step === 2 && estimating)}>다음 →</Button>
+          <Button data-ui-id="CMP-BTN-NEXT" onClick={() => setStep(step + 1)} disabled={!canNext || (step === 2 && estimating)}>다음 →</Button>
         ) : (
-          <Button onClick={() => void send()} loading={sending} disabled={when === 'later' && !scheduledAt}>
+          <Button data-ui-id="CMP-BTN-SUBMIT" onClick={() => void send()} loading={sending} disabled={when === 'later' && !scheduledAt}>
             {when === 'later' ? '예약 발송' : '🚀 발송'}
           </Button>
         )}

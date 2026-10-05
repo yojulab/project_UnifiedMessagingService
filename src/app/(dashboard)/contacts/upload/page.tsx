@@ -115,15 +115,28 @@ export default function UploadPage(): ReactElement {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="연락처 업로드" description="엑셀·CSV·TSV·TXT 파일의 컬럼을 직접 매핑하여 연락처를 가져옵니다." actions={<Link href="/contacts" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">연락처 목록</Link>} />
+      <PageHeader
+        title="연락처 업로드"
+        description="엑셀·CSV·TSV·TXT 파일의 컬럼을 직접 매핑하여 연락처를 가져옵니다."
+        titleUiId="CNT-TIT-002"
+        descUiId="CNT-TXT-002"
+        actions={<Link href="/contacts" data-ui-id="CNT-LNK-001" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">연락처 목록</Link>}
+      />
 
-      <Dropzone accept=".xlsx,.xls,.csv,.tsv,.txt" label="연락처 파일 업로드" hint="파일을 끌어다 놓거나 선택하세요 (최대 10MB · 50,000행)" onFile={(f) => void onFile(f)} disabled={busy !== null} />
+      <Dropzone
+        data-ui-id="CNT-SEC-DROP"
+        accept=".xlsx,.xls,.csv,.tsv,.txt"
+        label="연락처 파일 업로드"
+        hint="파일을 끌어다 놓거나 선택하세요 (최대 10MB · 50,000행)"
+        onFile={(f) => void onFile(f)}
+        disabled={busy !== null}
+      />
       {busy === 'preview' && <Spinner label="파일 분석 중" />}
       {error && <Alert tone="error">{error}</Alert>}
 
       {result && (
         <Alert tone="success">
-          <p className="font-medium" data-testid="import-result">
+          <p className="font-medium" data-testid="import-result" data-ui-id="CNT-TXT-RESULT">
             가져오기 완료 — 전체 {fmtNum(result.totalRows)}행 · 신규 {fmtNum(result.importedRows)} · 갱신 {fmtNum(result.updatedRows)} · 건너뜀 {fmtNum(result.skippedRows)}
           </p>
           {result.warnings.length > 0 && (
@@ -132,45 +145,45 @@ export default function UploadPage(): ReactElement {
               <ul className="mt-1 list-disc pl-5 text-xs">{result.warnings.map((w) => <li key={w}>{w}</li>)}</ul>
             </details>
           )}
-          <Link href="/contacts" className="mt-2 inline-block text-sm text-primary hover:underline">연락처 목록으로 →</Link>
+          <Link href="/contacts" data-ui-id="CNT-LNK-002" className="mt-2 inline-block text-sm text-primary hover:underline">연락처 목록으로 →</Link>
         </Alert>
       )}
 
       {preview && mapping && (
         <>
-          <section className="card" aria-label="미리보기">
-            <h2 className="mb-1 font-semibold">미리보기 — {preview.fileName}</h2>
-            <p className="mb-3 text-xs text-muted-foreground">총 {fmtNum(preview.totalRows)}행 중 상위 3행</p>
+          <section className="card" aria-label="미리보기" data-ui-id="CNT-SEC-PREVIEW">
+            <h2 className="mb-1 font-semibold" data-ui-id="CNT-TIT-PREVIEW">미리보기 — {preview.fileName}</h2>
+            <p className="mb-3 text-xs text-muted-foreground" data-ui-id="CNT-TXT-PREVIEW">총 {fmtNum(preview.totalRows)}행 중 상위 3행</p>
             <div className="overflow-x-auto">
-              <table className="table-base" aria-label="샘플 데이터">
+              <table className="table-base" aria-label="샘플 데이터" data-ui-id="CNT-TBL-PREVIEW">
                 <thead><tr>{preview.headers.map((h) => <th key={h} className="whitespace-nowrap">{h}</th>)}</tr></thead>
                 <tbody>{preview.sampleRows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className="whitespace-nowrap">{c}</td>)}</tr>)}</tbody>
               </table>
             </div>
           </section>
 
-          <section className="card space-y-5" aria-label="컬럼 매핑">
-            <h2 className="font-semibold">컬럼 매핑</h2>
+          <section className="card space-y-5" aria-label="컬럼 매핑" data-ui-id="CNT-SEC-MAPPING">
+            <h2 className="font-semibold" data-ui-id="CNT-TIT-MAPPING">컬럼 매핑</h2>
             <div className="grid gap-4 md:grid-cols-3">
-              <SelectField label="이름 컬럼" required value={mapping.name} onChange={(e) => setMapping({ ...mapping, name: e.target.value })}>
+              <SelectField label="이름 컬럼" required value={mapping.name} onChange={(e) => setMapping({ ...mapping, name: e.target.value })} data-ui-id="CNT-SEL-MAP-NAME">
                 <option value="">선택하세요</option>
                 {preview.headers.map((h) => <option key={h} value={h}>{h}</option>)}
               </SelectField>
               {(['company', 'department', 'notes', 'labelsColumn'] as const).map((k) => (
-                <SelectField key={k} label={{ company: '회사 컬럼', department: '부서/직책 컬럼', notes: '메모 컬럼', labelsColumn: '라벨 컬럼' }[k]} value={mapping[k]} onChange={(e) => setMapping({ ...mapping, [k]: e.target.value })}>
+                <SelectField key={k} data-ui-id={`CNT-SEL-MAP-${k.toUpperCase()}`} label={{ company: '회사 컬럼', department: '부서/직책 컬럼', notes: '메모 컬럼', labelsColumn: '라벨 컬럼' }[k]} value={mapping[k]} onChange={(e) => setMapping({ ...mapping, [k]: e.target.value })}>
                   <option value="">사용 안 함</option>
                   {preview.headers.map((h) => <option key={h} value={h}>{h}</option>)}
                 </SelectField>
               ))}
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <fieldset className="rounded-md border border-border p-3">
+              <fieldset className="rounded-md border border-border p-3" data-ui-id="CNT-SEC-MAP-PHONES">
                 <legend className="px-1 text-sm font-medium">전화번호 컬럼 (복수 선택)</legend>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   {preview.headers.map((h) => <Checkbox key={h} label={h} aria-label={`전화번호: ${h}`} checked={mapping.phones.includes(h)} onChange={() => toggle('phones', h)} />)}
                 </div>
               </fieldset>
-              <fieldset className="rounded-md border border-border p-3">
+              <fieldset className="rounded-md border border-border p-3" data-ui-id="CNT-SEC-MAP-EMAILS">
                 <legend className="px-1 text-sm font-medium">이메일 컬럼 (복수 선택)</legend>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   {preview.headers.map((h) => <Checkbox key={h} label={h} aria-label={`이메일: ${h}`} checked={mapping.emails.includes(h)} onChange={() => toggle('emails', h)} />)}
@@ -178,7 +191,7 @@ export default function UploadPage(): ReactElement {
               </fieldset>
             </div>
             {preview.headers.some((h) => !used.has(h)) && (
-              <fieldset className="rounded-md border border-border p-3">
+              <fieldset className="rounded-md border border-border p-3" data-ui-id="CNT-SEC-MAP-CUSTOM">
                 <legend className="px-1 text-sm font-medium">추가 보관할 컬럼 (커스텀 필드 · 치환태그 {'{컬럼명}'} 사용 가능)</legend>
                 <div className="flex flex-wrap gap-x-4 gap-y-2">
                   {preview.headers.filter((h) => !used.has(h)).map((h) => <Checkbox key={h} label={h} aria-label={`커스텀: ${h}`} checked={mapping.custom.includes(h)} onChange={() => toggle('custom', h)} />)}
@@ -186,7 +199,7 @@ export default function UploadPage(): ReactElement {
               </fieldset>
             )}
 
-            <fieldset>
+            <fieldset data-ui-id="CNT-SEC-MAP-DUP">
               <legend className="field-label">중복 처리 (같은 전화번호 또는 이메일이 이미 있는 경우)</legend>
               <div className="grid gap-2 sm:grid-cols-3">
                 {DUP_OPTIONS.map((o) => (
@@ -198,23 +211,23 @@ export default function UploadPage(): ReactElement {
               </div>
             </fieldset>
 
-            <TextField label="일괄 부여할 라벨 (쉼표 구분)" placeholder="예: VIP, 2026 세미나" value={labels} onChange={(e) => setLabels(e.target.value)} />
+            <TextField label="일괄 부여할 라벨 (쉼표 구분)" placeholder="예: VIP, 2026 세미나" value={labels} onChange={(e) => setLabels(e.target.value)} data-ui-id="CNT-INP-MAP-LABELS" />
 
             {!valid && <Alert tone="warning">이름 컬럼과 전화번호 또는 이메일 컬럼을 1개 이상 선택하세요.</Alert>}
-            <Button onClick={() => void commit()} loading={busy === 'commit'} disabled={!valid}>
+            <Button data-ui-id="CNT-BTN-COMMIT" onClick={() => void commit()} loading={busy === 'commit'} disabled={!valid}>
               {fmtNum(preview.totalRows)}행 가져오기
             </Button>
           </section>
         </>
       )}
 
-      <section className="card" aria-label="업로드 이력">
-        <h2 className="mb-3 font-semibold">업로드 이력</h2>
+      <section className="card" aria-label="업로드 이력" data-ui-id="CNT-SEC-HISTORY">
+        <h2 className="mb-3 font-semibold" data-ui-id="CNT-TIT-HISTORY">업로드 이력</h2>
         {history.length === 0 ? (
           <p className="text-sm text-muted-foreground">업로드 이력이 없습니다.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="table-base">
+            <table className="table-base" data-ui-id="CNT-TBL-HISTORY">
               <thead><tr><th>파일</th><th>상태</th><th className="text-right">전체</th><th className="text-right">신규</th><th className="text-right">갱신</th><th className="text-right">건너뜀</th><th>일시</th></tr></thead>
               <tbody>
                 {history.map((h) => (

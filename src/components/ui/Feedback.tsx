@@ -68,9 +68,19 @@ export function PageHeader({
   );
 }
 
-export function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }): ReactElement {
+export function Stat({
+  label,
+  value,
+  sub,
+  'data-ui-id': uiId,
+}: {
+  label: string;
+  value: ReactNode;
+  sub?: ReactNode;
+  'data-ui-id'?: string;
+}): ReactElement {
   return (
-    <div className="card">
+    <div data-ui-id={uiId} className="card">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
       {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}

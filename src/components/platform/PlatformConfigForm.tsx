@@ -85,24 +85,37 @@ export function PlatformConfigForm({ providers, editing, onSaved, onCancel }: Pr
   }
 
   return (
-    <section className="card space-y-5" aria-label={editing ? '플랫폼 설정 수정' : '새 플랫폼 추가'}>
-      <h2 className="text-lg font-semibold">{editing ? `${editing.providerName} 설정 수정` : '새 플랫폼 추가'}</h2>
+    <section data-ui-id="PLT-SEC-FORM" className="card space-y-5" aria-label={editing ? '플랫폼 설정 수정' : '새 플랫폼 추가'}>
+      <h2 data-ui-id="PLT-TIT-FORM" className="text-lg font-semibold">{editing ? `${editing.providerName} 설정 수정` : '새 플랫폼 추가'}</h2>
       <div className="grid gap-4 sm:grid-cols-3">
-        <SelectField label="발송 채널" value={channel} disabled={Boolean(editing)} onChange={(e) => { setChannel(e.target.value); setProvider(''); setValues({}); setTest(null); }}>
+        <SelectField
+          data-ui-id="PLT-SEL-001"
+          label="발송 채널"
+          value={channel}
+          disabled={Boolean(editing)}
+          onChange={(e) => { setChannel(e.target.value); setProvider(''); setValues({}); setTest(null); }}
+        >
           {['EMAIL', 'SMS', 'LMS', 'KAKAO'].map((c) => <option key={c} value={c}>{CHANNEL_LABEL[c]}</option>)}
         </SelectField>
-        <SelectField label="공급사" value={provider} disabled={Boolean(editing)} onChange={(e) => { setProvider(e.target.value); setValues({}); setTest(null); setBulk(''); setBulkMsg(null); }} required>
+        <SelectField
+          data-ui-id="PLT-SEL-002"
+          label="공급사"
+          value={provider}
+          disabled={Boolean(editing)}
+          onChange={(e) => { setProvider(e.target.value); setValues({}); setTest(null); setBulk(''); setBulkMsg(null); }}
+          required
+        >
           <option value="">선택하세요</option>
           {channelProviders.map((p) => <option key={p.code} value={p.code}>{p.name}</option>)}
         </SelectField>
-        <TextField label="표시 이름" value={name} onChange={(e) => setName(e.target.value)} placeholder={current?.name ?? ''} />
+        <TextField data-ui-id="PLT-INP-001" label="표시 이름" value={name} onChange={(e) => setName(e.target.value)} placeholder={current?.name ?? ''} />
       </div>
 
       {current && (
         <>
-          <div className="rounded-md border border-border bg-surface p-4" aria-label="변수 가이드">
-            <h3 className="mb-2 text-sm font-semibold">변수 가이드 — {current.name}</h3>
-            <table className="table-base">
+          <div data-ui-id="PLT-SEC-GUIDE" className="rounded-md border border-border bg-surface p-4" aria-label="변수 가이드">
+            <h3 data-ui-id="PLT-TIT-GUIDE" className="mb-2 text-sm font-semibold">변수 가이드 — {current.name}</h3>
+            <table data-ui-id="PLT-TBL-GUIDE" className="table-base">
               <thead><tr><th>키</th><th>항목</th><th>필수</th><th>설명</th></tr></thead>
               <tbody>
                 {Object.entries(template).map(([k, f]) => (
@@ -121,6 +134,7 @@ export function PlatformConfigForm({ providers, editing, onSaved, onCancel }: Pr
             <Alert tone="warning">Zoho Mail API 는 List-Unsubscribe 헤더를 붙일 수 없어 원클릭 수신거부 버튼이 표시되지 않습니다 (본문 링크는 삽입됨). 대량 광고 메일은 AWS SES 를 권장합니다.</Alert>
           )}
           <TextAreaField
+            data-ui-id="PLT-INP-BULK"
             label="일괄 입력 (JSON 또는 KEY=VALUE)"
             rows={5}
             className="font-mono text-xs"
@@ -132,9 +146,10 @@ export function PlatformConfigForm({ providers, editing, onSaved, onCancel }: Pr
           {bulkMsg && <Alert tone={bulkMsg.tone}>{bulkMsg.text}</Alert>}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {Object.entries(template).map(([k, f]) => (
+            {Object.entries(template).map(([k, f], idx) => (
               <TextField
                 key={k}
+                data-ui-id={`PLT-INP-FIELD-${idx + 1}`}
                 label={f.label}
                 required={f.required}
                 type={f.secret ? 'password' : 'text'}
@@ -148,19 +163,19 @@ export function PlatformConfigForm({ providers, editing, onSaved, onCancel }: Pr
             ))}
           </div>
 
-          <Checkbox label="이 채널의 기본 플랫폼으로 사용" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
+          <Checkbox data-ui-id="PLT-INP-DEFAULT" label="이 채널의 기본 플랫폼으로 사용" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
 
           {test && <Alert tone={test.connected ? 'success' : 'error'}>{test.connected ? '✓ ' : '✗ '}{test.message}</Alert>}
           {error && <Alert tone="error">{error}</Alert>}
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => void runTest()} loading={busy === 'test'} disabled={missing.length > 0}>
+            <Button data-ui-id="PLT-BTN-TEST" variant="secondary" onClick={() => void runTest()} loading={busy === 'test'} disabled={missing.length > 0}>
               연결 테스트
             </Button>
-            <Button onClick={() => void save()} loading={busy === 'save'} disabled={missing.length > 0}>
+            <Button data-ui-id="PLT-BTN-SAVE" onClick={() => void save()} loading={busy === 'save'} disabled={missing.length > 0}>
               저장
             </Button>
-            <Button variant="ghost" onClick={onCancel}>취소</Button>
+            <Button data-ui-id="PLT-BTN-CANCEL" variant="ghost" onClick={onCancel}>취소</Button>
           </div>
         </>
       )}

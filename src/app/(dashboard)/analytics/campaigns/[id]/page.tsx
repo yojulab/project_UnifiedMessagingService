@@ -70,15 +70,17 @@ export default function CampaignDetailPage(): ReactElement {
       <PageHeader
         title={d.campaignName}
         description={`${CHANNEL_LABEL[d.channel]} · ${d.platformName || d.provider}${d.fallbackToLms ? ' · 실패 시 LMS 대체' : ''}`}
+        titleUiId="ALT-TIT-DETAIL"
+        descUiId="ALT-TXT-DETAIL"
         actions={
           <>
-            <Link href="/analytics" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">← 통계</Link>
-            <a href={`/api/campaigns/${id}/logs/export${qs({ resultCode: rc, q })}`} className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">CSV 내보내기</a>
-            {active && <Button variant="danger" onClick={() => void cancel()}>발송 취소</Button>}
+            <Link href="/analytics" data-ui-id="ALT-LNK-BACK" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">← 통계</Link>
+            <a href={`/api/campaigns/${id}/logs/export${qs({ resultCode: rc, q })}`} data-ui-id="ALT-BTN-EXPORT" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">CSV 내보내기</a>
+            {active && <Button data-ui-id="ALT-BTN-CANCEL" variant="danger" onClick={() => void cancel()}>발송 취소</Button>}
           </>
         }
       />
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3" data-ui-id="ALT-SEC-STATUS">
         <Badge tone={statusTone(d.status)}><span data-testid="campaign-status">{STATUS_LABEL[d.status]}</span></Badge>
         {d.status === 'PENDING' && d.scheduledAt && <span className="text-sm text-muted-foreground">예약: {fmtDate(d.scheduledAt)}</span>}
         {d.completedAt && <span className="text-sm text-muted-foreground">완료: {fmtDate(d.completedAt)}</span>}
@@ -87,7 +89,7 @@ export default function CampaignDetailPage(): ReactElement {
       {d.status === 'SENDING' && (
         <progress value={pct} max={100} aria-label="발송 진행률" className="h-2 w-full overflow-hidden rounded [&::-moz-progress-bar]:bg-primary [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary" />
       )}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-6" data-ui-id="ALT-SEC-STATS">
         <Stat label="대상 고객" value={`${fmtNum(d.totalTargets)}명`} />
         <Stat label="발송 건수" value={`${fmtNum(d.totalMessages)}건`} />
         <Stat label="성공" value={<span data-testid="count-success">{fmtNum(r('SUCCESS'))}</span>} />
@@ -97,8 +99,8 @@ export default function CampaignDetailPage(): ReactElement {
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Stat label="실제 비용" value={fmtWon(d.totalCost)} sub={`예상 ${fmtWon(d.estimatedCost)}`} />
-        <section className="card text-sm">
-          <h2 className="mb-2 font-semibold">발송 조건</h2>
+        <section className="card text-sm" data-ui-id="ALT-SEC-CONDITIONS">
+          <h2 className="mb-2 font-semibold" data-ui-id="ALT-TIT-CONDITIONS">발송 조건</h2>
           <p>모드: {{ ALL: '전체', TOP_N: `상위 ${d.targetFilter.limit}명`, RANDOM_N: `무작위 ${d.targetFilter.limit}명` }[d.targetFilter.mode]}</p>
           {d.targetFilter.labels.length > 0 && <p>라벨: {d.targetFilter.labels.join(', ')}</p>}
           {d.targetFilter.sourceNames.length > 0 && <p>출처: {d.targetFilter.sourceNames.join(', ')}</p>}
@@ -108,17 +110,17 @@ export default function CampaignDetailPage(): ReactElement {
         </section>
       </div>
 
-      <section className="card space-y-3">
-        <h2 className="font-semibold">발송 로그 ({fmtNum(logs?.total)}건)</h2>
+      <section className="card space-y-3" data-ui-id="ALT-SEC-LOGS">
+        <h2 className="font-semibold" data-ui-id="ALT-TIT-LOGS">발송 로그 ({fmtNum(logs?.total)}건)</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <SelectField label="결과" value={rc} onChange={(e) => setRc(e.target.value)}>
+          <SelectField label="결과" value={rc} onChange={(e) => setRc(e.target.value)} data-ui-id="ALT-SEL-LOG-RESULT">
             <option value="">전체</option>
             {['SUCCESS', 'FAILED', 'BOUNCED', 'SKIPPED', 'PENDING'].map((c) => <option key={c} value={c}>{RESULT_LABEL[c]}</option>)}
           </SelectField>
-          <TextField label="수신자/이름 검색" value={q} onChange={(e) => setQ(e.target.value)} />
+          <TextField label="수신자/이름 검색" value={q} onChange={(e) => setQ(e.target.value)} data-ui-id="ALT-INP-LOG-QUERY" />
         </div>
         <div className="overflow-x-auto">
-          <table className="table-base" aria-label="발송 로그">
+          <table className="table-base" aria-label="발송 로그" data-ui-id="ALT-TBL-LOGS">
             <thead><tr><th>이름</th><th>수신자</th><th>채널</th><th>결과</th><th>오류</th><th className="text-right">단가</th><th>시각</th></tr></thead>
             <tbody>
               {logs?.items.map((l) => (
@@ -135,7 +137,7 @@ export default function CampaignDetailPage(): ReactElement {
             </tbody>
           </table>
         </div>
-        {logs?.nextCursor && <Button variant="secondary" size="sm" onClick={() => void more()}>더 보기</Button>}
+        {logs?.nextCursor && <Button data-ui-id="ALT-BTN-LOG-MORE" variant="secondary" size="sm" onClick={() => void more()}>더 보기</Button>}
       </section>
     </div>
   );

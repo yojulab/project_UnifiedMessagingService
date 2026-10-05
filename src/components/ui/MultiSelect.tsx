@@ -8,10 +8,11 @@ interface Props {
   value: string[];
   onChange: (v: string[]) => void;
   placeholder?: string;
+  'data-ui-id'?: string;
 }
 
 /** 체크박스 드롭다운 다중 선택 */
-export function MultiSelect({ label, options, value, onChange, placeholder = '전체' }: Props): ReactElement {
+export function MultiSelect({ label, options, value, onChange, placeholder = '전체', 'data-ui-id': uiId }: Props): ReactElement {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -28,6 +29,7 @@ export function MultiSelect({ label, options, value, onChange, placeholder = '�
       <span id={id} className="field-label">{label}</span>
       <button
         type="button"
+        data-ui-id={uiId}
         aria-labelledby={id}
         aria-haspopup="listbox"
         aria-expanded={open}

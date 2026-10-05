@@ -12,7 +12,7 @@ export interface Sample {
 
 export function MessagePreview({ sample, channel }: { sample: Sample; channel: string }): ReactElement {
   return (
-    <div className="space-y-2" aria-label="샘플 미리보기" data-testid="message-preview">
+    <div className="space-y-2" aria-label="샘플 미리보기" data-testid="message-preview" data-ui-id="CMP-SEC-PREVIEW">
       <p className="text-xs text-muted-foreground">To: <span className="font-mono">{sample.recipient}</span> ({sample.contactName})</p>
       {channel === 'EMAIL' ? (
         <>

@@ -25,13 +25,19 @@ export default function CampaignsPage(): ReactElement {
 
   return (
     <div>
-      <PageHeader title="캠페인 발송" description="발송 캠페인 목록" actions={<Link href="/campaigns/new" className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">새 캠페인</Link>} />
+      <PageHeader
+        title="캠페인 발송"
+        description="발송 캠페인 목록"
+        titleUiId="CMP-TIT-001"
+        descUiId="CMP-TXT-001"
+        actions={<Link href="/campaigns/new" data-ui-id="CMP-BTN-001" className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">새 캠페인</Link>}
+      />
       {error && <Alert tone="error">{error}</Alert>}
       {!items && !error && <Skeleton rows={5} />}
       {items && items.length === 0 && <EmptyState title="캠페인이 없습니다.">‘새 캠페인’으로 첫 메시지를 발송하세요.</EmptyState>}
       {items && items.length > 0 && (
-        <div className="card overflow-x-auto p-0">
-          <table className="table-base" aria-label="캠페인 목록">
+        <div className="card overflow-x-auto p-0" data-ui-id="CMP-SEC-001">
+          <table className="table-base" aria-label="캠페인 목록" data-ui-id="CMP-TBL-001">
             <thead>
               <tr><th>캠페인</th><th>채널</th><th>상태</th><th className="text-right">대상/건수</th><th className="text-right">성공/실패</th><th className="text-right">비용</th><th>일시</th></tr>
             </thead>
@@ -40,7 +46,7 @@ export default function CampaignsPage(): ReactElement {
                 const done = c.sentCount + c.failedCount + c.skippedCount;
                 return (
                   <tr key={c.id}>
-                    <td><Link href={`/analytics/campaigns/${c.id}`} className="font-medium text-primary hover:underline">{c.campaignName}</Link></td>
+                    <td><Link href={`/analytics/campaigns/${c.id}`} data-ui-id="CMP-LNK-DETAIL" className="font-medium text-primary hover:underline">{c.campaignName}</Link></td>
                     <td>{CHANNEL_LABEL[c.channel]}<span className="ml-1 text-xs text-muted-foreground">{c.provider}</span></td>
                     <td>
                       <Badge tone={statusTone(c.status)}>{STATUS_LABEL[c.status]}</Badge>

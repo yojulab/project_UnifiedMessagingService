@@ -56,15 +56,17 @@ export default function UnsubscribesPage(): ReactElement {
       <PageHeader
         title="수신거부 관리"
         description="080 무료수신거부 · 이메일 원클릭 수신거부 · 관리자 수동 등록 내역"
-        actions={<a href={`/api/unsubscribes${qs({ channel, reason, format: 'csv' })}`} className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">CSV 내보내기</a>}
+        titleUiId="ALT-TIT-UNSUB"
+        descUiId="ALT-TXT-UNSUB"
+        actions={<a href={`/api/unsubscribes${qs({ channel, reason, format: 'csv' })}`} data-ui-id="ALT-BTN-UNSUB-EXPORT" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-muted">CSV 내보내기</a>}
       />
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="card space-y-3">
-          <h2 className="font-semibold">080 수신거부 목록 가져오기</h2>
-          <Dropzone accept=".csv,.txt,.xlsx,.xls,.tsv" label="080 수신거부 파일 업로드" hint="전화번호가 들어 있는 CSV/엑셀 — 해당 번호만 문자 발송에서 제외됩니다." onFile={(f) => void importCsv(f)} disabled={importing} />
+        <section className="card space-y-3" data-ui-id="ALT-SEC-UNSUB-IMPORT">
+          <h2 className="font-semibold" data-ui-id="ALT-TIT-UNSUB-IMPORT">080 수신거부 목록 가져오기</h2>
+          <Dropzone data-ui-id="ALT-SEC-UNSUB-DROP" accept=".csv,.txt,.xlsx,.xls,.tsv" label="080 수신거부 파일 업로드" hint="전화번호가 들어 있는 CSV/엑셀 — 해당 번호만 문자 발송에서 제외됩니다." onFile={(f) => void importCsv(f)} disabled={importing} />
         </section>
-        <section className="card space-y-2 text-sm">
-          <h2 className="font-semibold">080 자동 동기화 웹훅</h2>
+        <section className="card space-y-2 text-sm" data-ui-id="ALT-SEC-UNSUB-WEBHOOK">
+          <h2 className="font-semibold" data-ui-id="ALT-TIT-UNSUB-WEBHOOK">080 자동 동기화 웹훅</h2>
           <p className="text-xs text-muted-foreground">공급사 콘솔의 080 수신거부 알림(웹훅) URL 에 아래 주소를 등록하면 거부 번호가 자동 반영됩니다. 서명(sig)이 포함되어 있으니 외부에 공유하지 마세요.</p>
           {Object.entries(webhooks).map(([p, url]) => (
             <div key={p}>
@@ -74,14 +76,14 @@ export default function UnsubscribesPage(): ReactElement {
           ))}
         </section>
       </div>
-      <div className="card grid gap-3 sm:grid-cols-2">
-        <SelectField label="채널" value={channel} onChange={(e) => setChannel(e.target.value)}>
+      <div className="card grid gap-3 sm:grid-cols-2" data-ui-id="ALT-SEC-UNSUB-FILTER">
+        <SelectField label="채널" value={channel} onChange={(e) => setChannel(e.target.value)} data-ui-id="ALT-SEL-UNSUB-CHANNEL">
           <option value="">전체</option>
           <option value="SMS">문자</option>
           <option value="EMAIL">이메일</option>
           <option value="KAKAO">카카오</option>
         </SelectField>
-        <SelectField label="사유" value={reason} onChange={(e) => setReason(e.target.value)}>
+        <SelectField label="사유" value={reason} onChange={(e) => setReason(e.target.value)} data-ui-id="ALT-SEL-UNSUB-REASON">
           <option value="">전체</option>
           {Object.entries(REASON_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </SelectField>
@@ -90,9 +92,9 @@ export default function UnsubscribesPage(): ReactElement {
       {!rows && !error && <Skeleton rows={4} />}
       {rows && rows.length === 0 && <EmptyState title="수신거부 내역이 없습니다." />}
       {rows && rows.length > 0 && (
-        <div className="card overflow-x-auto p-0">
-          <p className="px-4 pt-3 text-xs text-muted-foreground">{fmtNum(rows.length)}건</p>
-          <table className="table-base" aria-label="수신거부 목록">
+        <div className="card overflow-x-auto p-0" data-ui-id="ALT-SEC-UNSUB-LIST">
+          <p className="px-4 pt-3 text-xs text-muted-foreground" data-ui-id="ALT-TXT-UNSUB-COUNT">{fmtNum(rows.length)}건</p>
+          <table className="table-base" aria-label="수신거부 목록" data-ui-id="ALT-TBL-UNSUB">
             <thead><tr><th>이름</th><th>번호/이메일</th><th>채널</th><th>사유</th><th>일시</th><th /></tr></thead>
             <tbody>
               {rows.map((r) => (
@@ -102,7 +104,7 @@ export default function UnsubscribesPage(): ReactElement {
                   <td>{CHANNEL_LABEL[r.channel] ?? r.channel}</td>
                   <td><Badge tone={r.reason === 'MANUAL' ? 'neutral' : 'danger'}>{REASON_LABEL[r.reason] ?? r.reason}</Badge></td>
                   <td className="whitespace-nowrap text-xs">{fmtDate(r.at)}</td>
-                  <td className="text-right"><Button size="sm" variant="ghost" onClick={() => void release(r)}>해제</Button></td>
+                  <td className="text-right"><Button data-ui-id="ALT-BTN-UNSUB-RELEASE" size="sm" variant="ghost" onClick={() => void release(r)}>해제</Button></td>
                 </tr>
               ))}
             </tbody>
