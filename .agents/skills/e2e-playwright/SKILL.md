@@ -96,8 +96,11 @@ export default defineConfig({
 
 ## 5. 작성 규칙
 
-- 로케이터 우선순위: `getByRole` → `getByLabel` → `getByText` → `getByTestId`. CSS/XPath 셀렉터 금지.
-  - 이 규칙은 `ui-design.md`의 접근성 규칙(aria-label, 시맨틱 태그)과 맞물린다 — 로케이터가 안 잡히면 UI의 접근성 누락부터 의심한다.
+- 로케이터 우선순위:
+  1. `page.locator('[data-ui-id="<ID>"]')` 또는 `getByRole` / `getByLabel`
+  2. `getByText` → `getByTestId`
+  - 의뢰자 소통용 식별 태그(`data-ui-id`)가 부여된 요소는 `locator('[data-ui-id="..."]')`를 최우선으로 사용하여 의뢰자 피드백 지점과 E2E 검증 대상을 100% 일치시킨다.
+  - 임의의 깨지기 쉬운 계층형 CSS/XPath 셀렉터는 금지한다.
 - `page.waitForTimeout()` 금지. `expect(...).toBeVisible()` 등 자동 대기 단언을 사용.
 - 파일 구조: `e2e/phase{N}-{도메인}.spec.ts` (예: `phase3-contacts.spec.ts`).
 - UI 동작 검증 + 필요 시 DB 상태 검증(`e2e/helpers/db.ts`의 mongoose 조회)을 함께 한다.

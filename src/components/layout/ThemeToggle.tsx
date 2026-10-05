@@ -13,6 +13,7 @@ export function ThemeToggle(): ReactElement {
   return (
     <button
       type="button"
+      data-ui-id="COM-BTN-002"
       aria-label={isDark ? '라이트 모드로 전환' : '다크 모드로 전환'}
       title={isDark ? '라이트 모드' : '다크 모드'}
       onClick={() => {

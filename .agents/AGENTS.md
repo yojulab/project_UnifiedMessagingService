@@ -156,6 +156,11 @@ interface IMessagingAdapter {
 - **SMS**: 본문 하단 `(무료수신거부: 080-XXX-XXXX)` 자동 삽입, 080 데이터 동기화.
 - **Email**: HMAC 토큰 기반 원클릭 수신거부 링크 삽입, RFC 8058 `List-Unsubscribe` 헤더 탑재.
 
+### 5. 의뢰자 소통용 UI 식별자 (`data-ui-id`)
+- 모든 중요 인터랙티브 요소(버튼, 인풋) 및 컨테이너에 `data-ui-id="<DOMAIN>-<TYPE>-<NUM>"`(예: `CNT-BTN-001`)를 필수 부여한다 (`rules/ui-design.md` 참조).
+- 개발/검토 모드에서 화면 우하단 `UiInspectorOverlay` 토글(Alt+U)로 화면 뱃지 시각화 및 클립보드 복사를 제공하며, 운영(Production) 환경에서는 완전 차단(null)된다.
+- E2E Playwright 테스트 locator 로도 최우선 활용한다.
+
 ---
 
 ## MongoDB 컬렉션 참조

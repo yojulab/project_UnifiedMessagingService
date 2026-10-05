@@ -25,6 +25,7 @@
 - `page.tsx`는 가능한 얇게(thin) 유지. 비즈니스 로직은 `lib/` 또는 커스텀 훅으로 분리.
 - API Route Handler에서 반드시 `userId`를 세션에서 추출하여 **테넌트 필터링**을 적용한다.
 - 에러 핸들링은 `try-catch` + Next.js `error.tsx` boundary를 조합한다.
+- **의뢰자 소통용 UI 식별자 (`data-ui-id`) 필수 부여**: 모든 중요 인터랙티브 요소(버튼, 입력 필드 등) 및 핵심 컨테이너에 `data-ui-id="<DOMAIN>-<TYPE>-<NUM>"` 속성을 선언한다 (`ui-design.md` 참조).
 
 ## MongoDB / Mongoose 규칙
 
