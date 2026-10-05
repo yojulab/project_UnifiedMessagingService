@@ -15,6 +15,15 @@ test.describe('Phase 2 — 플랫폼 연동 설정', () => {
     await ctx.dispose();
   });
 
+  test('사이드바 COM-LNK-003 링크로 플랫폼 연동 페이지 이동 검증', async ({ page }) => {
+    await page.goto('/dashboard');
+    const link = page.locator('[data-ui-id="COM-LNK-003"]');
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(/\/platform-config$/);
+    await expect(page.locator('[data-ui-id="PLT-TIT-001"]')).toBeVisible();
+  });
+
   test('공급사 선택 시 변수 가이드 + KEY=VALUE 붙여넣기 자동 채움 + 누락 경고', async ({ page }) => {
     await page.goto('/platform-config');
     await page.getByRole('button', { name: '새 플랫폼 추가' }).click();
@@ -55,6 +64,39 @@ test.describe('Phase 2 — 플랫폼 연동 설정', () => {
     await expect(card).toContainText('****1234');
     await expect(card).toContainText('080-123-4567');
     await expect(card).not.toContainText('aligo-key-ABCD1234');
+  });
+
+  test('Zoho Mail 공급사 선택 + KEY=VALUE 일괄 입력 + PLT-BTN-TEST 연결 테스트', async ({ page }) => {
+    await page.goto('/platform-config');
+    await page.getByRole('button', { name: '새 플랫폼 추가' }).click();
+    await page.getByLabel('발송 채널').selectOption('EMAIL');
+    await page.getByLabel('공급사').selectOption('ZOHO');
+
+    const bulkText = [
+      'ZOHO_CLIENT_ID=mock-client-id',
+      'ZOHO_CLIENT_SECRET=mock-client-secret',
+      'ZOHO_GRANT_CODE=',
+      'ZOHO_FROM_EMAIL=test@example.com',
+      'ZOHO_REFRESH_TOKEN=mock-refresh-token',
+      'ZOHO_ACCOUNT_ID=12345678',
+    ].join('\n');
+
+    await page.getByLabel('일괄 입력 (JSON 또는 KEY=VALUE)').fill(bulkText);
+    await expect(page.getByRole('status').filter({ hasText: '5개 항목을 채웠습니다' })).toBeVisible();
+
+    // mock 연결 테스트 응답
+    await page.route('**/api/platform-configs/test', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: { connected: true, message: 'Zoho Mail 연결 성공' } }),
+      });
+    });
+
+    const testBtn = page.locator('[data-ui-id="PLT-BTN-TEST"]');
+    await expect(testBtn).toBeEnabled();
+    await testBtn.click();
+    await expect(page.getByText('✓ Zoho Mail 연결 성공')).toBeVisible();
   });
 
   test('DB 에는 비밀값이 암호문으로, API 응답에는 평문이 없음', async () => {

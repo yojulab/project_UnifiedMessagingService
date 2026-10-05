@@ -61,6 +61,14 @@ ZOHO_GRANT_CODE=`;
       accountId: 'acc-001',
     });
     expect(check.missing).toEqual([]);
-    expect(check.unknown).toEqual(['zohoGrantCode']);
+    expect(check.unknown).toEqual([]);
+  });
+
+  it('값이 있는 알 수 없는 키는 unknown 에 포함된다', () => {
+    const parsed = parseConfigText('FOO_BAR=some-val\nAPI_KEY=key123');
+    const tpl = { apiKey: { required: true } };
+    const { mapped, check } = matchConfigToTemplate(parsed, tpl);
+    expect(mapped).toEqual({ apiKey: 'key123' });
+    expect(check.unknown).toEqual(['fooBar']);
   });
 });

@@ -129,7 +129,7 @@ export function matchConfigToTemplate(
     const resolved = resolveConfigKey(k, template);
     if (resolved in template) {
       mapped[resolved] = v;
-    } else {
+    } else if (v.trim()) {
       unknown.push(k);
     }
   }

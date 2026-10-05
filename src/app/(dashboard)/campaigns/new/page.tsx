@@ -53,9 +53,31 @@ export default function NewCampaignPage(): ReactElement {
 
   useEffect(() => {
     Promise.all([api<Platform[]>('/api/platform-configs?status=ACTIVE'), api<{ sourceNames: string[]; labels: string[] }>('/api/contacts/facets')])
-      .then(([p, f]) => { setPlatforms(p); setFacets(f); })
+      .then(([p, f]) => {
+        setPlatforms(p);
+        setFacets(f);
+        if (p.length > 0) {
+          const def = p.find((item) => item.isDefault);
+          if (def) {
+            const g = GROUPS.find((grp) => grp.channels.includes(def.channel));
+            if (g) {
+              setGroup(g.value);
+              return;
+            }
+          }
+          const first = GROUPS.find((grp) => p.some((item) => grp.channels.includes(item.channel)));
+          if (first) {
+            setGroup(first.value);
+          }
+        }
+      })
       .catch((e: unknown) => setError(errMsg(e)));
   }, []);
+
+  const availableGroups = useMemo(
+    () => GROUPS.filter((g) => (platforms ?? []).some((p) => g.channels.includes(p.channel))),
+    [platforms]
+  );
 
   const groupPlatforms = useMemo(() => (platforms ?? []).filter((p) => GROUPS.find((g) => g.value === group)?.channels.includes(p.channel)), [platforms, group]);
   const smsPlatforms = useMemo(() => (platforms ?? []).filter((p) => p.channel === 'SMS' || p.channel === 'LMS'), [platforms]);
@@ -141,38 +163,81 @@ export default function NewCampaignPage(): ReactElement {
 
       {platforms && step === 1 && (
         <section className="card space-y-5" aria-label="Step 1 채널 및 플랫폼 선택" data-ui-id="CMP-SEC-STEP1">
-          <fieldset>
-            <legend className="field-label">발송 채널</legend>
-            <div className="flex flex-wrap gap-4">
-              {GROUPS.map((g) => <Radio key={g.value} name="group" label={g.label} checked={group === g.value} onChange={() => { setGroup(g.value); setEstimate(null); }} />)}
-            </div>
-          </fieldset>
-          {groupPlatforms.length === 0 ? (
+          {platforms.length === 0 ? (
             <Alert tone="warning">
-              ⚠ 등록된 {GROUPS.find((g) => g.value === group)?.label} 플랫폼이 없습니다.{' '}
-              <Link href="/platform-config" className="font-medium text-primary underline">플랫폼 설정 바로가기 →</Link>
+              ⚠ 등록된 발송 플랫폼이 없습니다. 메시지를 발송하려면 먼저 플랫폼 연동 설정에서 공급사 API 키를 등록하세요.{' '}
+              <Link href="/platform-config" className="font-medium text-primary underline" data-ui-id="CMP-LNK-PLATFORM">
+                플랫폼 설정 바로가기 →
+              </Link>
             </Alert>
           ) : (
-            <SelectField label="발송 플랫폼" value={platformId} onChange={(e) => setPlatformId(e.target.value)} data-ui-id="CMP-SEL-PLATFORM">
-              {groupPlatforms.map((p) => (
-                <option key={p.id} value={p.id}>{p.name} ({CHANNEL_LABEL[p.channel]} · {p.providerName}{p.configData.senderAddress ? ` · ${p.configData.senderAddress}` : p.configData.senderNumber ? ` · ${p.configData.senderNumber}` : ''}){p.isDefault ? ' — 기본' : ''}</option>
-              ))}
-            </SelectField>
-          )}
-          {group === 'KAKAO' && groupPlatforms.length > 0 && (
-            <div className="space-y-3 rounded-md border border-border p-3" data-ui-id="CMP-SEC-FALLBACK">
-              <Checkbox label="알림톡 발송 실패 시 LMS 로 자동 전환" checked={fallback} onChange={(e) => setFallback(e.target.checked)} />
-              {fallback && (
-                smsPlatforms.length === 0
-                  ? <Alert tone="warning">대체 발송에 사용할 SMS/LMS 플랫폼이 없습니다.</Alert>
-                  : (
-                    <SelectField label="LMS 대체 플랫폼" value={fallbackId} onChange={(e) => setFallbackId(e.target.value)} data-ui-id="CMP-SEL-FALLBACK">
-                      <option value="">선택하세요</option>
-                      {smsPlatforms.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.providerName})</option>)}
-                    </SelectField>
-                  )
+            <>
+              {availableGroups.length > 1 && (
+                <fieldset>
+                  <legend className="field-label">발송 채널</legend>
+                  <div className="flex flex-wrap gap-4">
+                    {availableGroups.map((g) => (
+                      <Radio
+                        key={g.value}
+                        name="group"
+                        label={g.label}
+                        checked={group === g.value}
+                        onChange={() => { setGroup(g.value); setEstimate(null); }}
+                      />
+                    ))}
+                  </div>
+                </fieldset>
               )}
-            </div>
+
+              {groupPlatforms.length === 0 ? (
+                <Alert tone="warning">
+                  ⚠ 선택한 {GROUPS.find((g) => g.value === group)?.label} 채널에 등록된 플랫폼이 없습니다.{' '}
+                  <Link href="/platform-config" className="font-medium text-primary underline">플랫폼 설정 바로가기 →</Link>
+                </Alert>
+              ) : (
+                <SelectField label="발송 플랫폼" value={platformId} onChange={(e) => setPlatformId(e.target.value)} data-ui-id="CMP-SEL-PLATFORM">
+                  {groupPlatforms.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({CHANNEL_LABEL[p.channel]} · {p.providerName})
+                    </option>
+                  ))}
+                </SelectField>
+              )}
+
+              {platform && (
+                <div className="rounded-md border border-border bg-surface p-4 space-y-2 text-sm" data-ui-id="CMP-SEC-PLATFORM-INFO">
+                  <h4 className="font-semibold text-foreground">선택된 발송 플랫폼 정보</h4>
+                  <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+                    <div><span className="text-muted-foreground block">플랫폼명</span><span className="font-medium">{platform.name}</span></div>
+                    <div><span className="text-muted-foreground block">공급사</span><span className="font-medium">{platform.providerName}</span></div>
+                    <div><span className="text-muted-foreground block">채널</span><span className="font-medium">{CHANNEL_LABEL[platform.channel]}</span></div>
+                    <div><span className="text-muted-foreground block">발신 정보</span><span className="font-medium">{platform.configData.senderAddress || platform.configData.senderNumber || '-'}</span></div>
+                    {platform.configData.optOutNumber && (
+                      <div><span className="text-muted-foreground block">080 무료수신거부</span><span className="font-medium">{platform.configData.optOutNumber}</span></div>
+                    )}
+                    {platform.isDefault && (
+                      <div className="text-primary font-medium flex items-center">✓ 기본 발송 플랫폼</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {group === 'KAKAO' && groupPlatforms.length > 0 && (
+                <div className="space-y-3 rounded-md border border-border p-3" data-ui-id="CMP-SEC-FALLBACK">
+                  <Checkbox label="알림톡 발송 실패 시 LMS 로 자동 전환" checked={fallback} onChange={(e) => setFallback(e.target.checked)} />
+                  {fallback && (
+                    smsPlatforms.length === 0
+                      ? <Alert tone="warning">대체 발송에 사용할 SMS/LMS 플랫폼이 없습니다.</Alert>
+                      : (
+                        <SelectField label="LMS 대체 플랫폼" value={fallbackId} onChange={(e) => setFallbackId(e.target.value)} data-ui-id="CMP-SEL-FALLBACK">
+                          <option value="">선택하세요</option>
+                          {smsPlatforms.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.providerName})</option>)}
+                        </SelectField>
+                      )
+                  )}
+                </div>
+              )}
+            </>
           )}
         </section>
       )}

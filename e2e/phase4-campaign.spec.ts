@@ -50,15 +50,40 @@ test.describe('Phase 4 — 캠페인 발송', () => {
     await a.dispose();
   });
 
+  test('사이드바 COM-LNK-005 링크로 캠페인 발송 페이지 이동 검증', async ({ page }) => {
+    await page.goto('/dashboard');
+    const link = page.locator('[data-ui-id="COM-LNK-005"]');
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(/\/campaigns$/);
+    await expect(page.locator('[data-ui-id="CMP-TIT-001"]')).toBeVisible();
+  });
+
   test.describe('플랫폼 미등록', () => {
     test.use({ storageState: AUTH_B });
     test('Step 1 에 안내와 플랫폼 설정 링크 표시', async ({ page }) => {
       await page.goto('/campaigns/new');
-      await page.getByRole('radio', { name: '카카오 알림톡' }).check();
-      await expect(page.getByText('등록된 카카오 알림톡 플랫폼이 없습니다.')).toBeVisible();
+      await expect(page.getByText('등록된 발송 플랫폼이 없습니다.')).toBeVisible();
       await page.getByRole('link', { name: '플랫폼 설정 바로가기 →' }).click();
       await expect(page).toHaveURL(/\/platform-config$/);
     });
+  });
+
+  test('Step 1: 설정된 채널과 플랫폼 정보만 노출', async ({ page }) => {
+    await page.goto('/campaigns/new');
+    const step1 = page.locator('[data-ui-id="CMP-SEC-STEP1"]');
+    await expect(step1).toBeVisible();
+    // AUTH_A 는 SMS 와 EMAIL 만 등록되어 있음 (KAKAO 는 미등록)
+    await expect(step1.getByRole('radio', { name: '문자 (SMS / LMS)' })).toBeVisible();
+    await expect(step1.getByRole('radio', { name: '이메일' })).toBeVisible();
+    await expect(step1.getByRole('radio', { name: '카카오 알림톡' })).not.toBeVisible();
+
+    // 선택된 플랫폼 정보 카드 표시 확인
+    const info = page.locator('[data-ui-id="CMP-SEC-PLATFORM-INFO"]');
+    await expect(info).toBeVisible();
+    await expect(info).toContainText('선택된 발송 플랫폼 정보');
+    await expect(info).toContainText('공급사');
+    await expect(info).toContainText('발신 정보');
   });
 
   test('Step 2: 대상 고객 수와 발송 건수 구분 + TOP_N / RANDOM_N', async ({ page }) => {
