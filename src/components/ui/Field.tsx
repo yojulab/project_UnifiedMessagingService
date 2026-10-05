@@ -54,18 +54,18 @@ export function SelectField({ label, hint, error, wrapClassName, className = '',
   );
 }
 
-export function Checkbox({ label, className = '', ...rest }: { label: ReactNode } & InputHTMLAttributes<HTMLInputElement>): ReactElement {
+export function Checkbox({ label, className = '', 'data-ui-id': uiId, ...rest }: { label: ReactNode; 'data-ui-id'?: string } & InputHTMLAttributes<HTMLInputElement>): ReactElement {
   return (
-    <label className={`inline-flex cursor-pointer items-center gap-2 text-sm ${className}`}>
+    <label data-ui-id={uiId} className={`inline-flex cursor-pointer items-center gap-2 text-sm ${className}`}>
       <input type="checkbox" className="h-4 w-4 rounded border-border accent-[hsl(var(--primary))]" {...rest} />
       <span>{label}</span>
     </label>
   );
 }
 
-export function Radio({ label, className = '', ...rest }: { label: ReactNode } & InputHTMLAttributes<HTMLInputElement>): ReactElement {
+export function Radio({ label, className = '', 'data-ui-id': uiId, ...rest }: { label: ReactNode; 'data-ui-id'?: string } & InputHTMLAttributes<HTMLInputElement>): ReactElement {
   return (
-    <label className={`inline-flex cursor-pointer items-center gap-2 text-sm ${className}`}>
+    <label data-ui-id={uiId} className={`inline-flex cursor-pointer items-center gap-2 text-sm ${className}`}>
       <input type="radio" className="h-4 w-4 accent-[hsl(var(--primary))]" {...rest} />
       <span>{label}</span>
     </label>

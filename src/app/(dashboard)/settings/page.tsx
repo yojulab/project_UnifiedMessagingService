@@ -73,22 +73,32 @@ export default function SettingsPage(): ReactElement {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="환경 설정" />
-      <section className="card space-y-4" aria-label="테마">
-        <h2 className="font-semibold">테마</h2>
+      <PageHeader title="환경 설정" titleUiId="SET-TIT-001" />
+      <section data-ui-id="SET-SEC-001" className="card space-y-4" aria-label="테마">
+        <h2 data-ui-id="SET-TIT-002" className="font-semibold">테마</h2>
         <fieldset>
-          <legend className="field-label">모드</legend>
+          <legend data-ui-id="SET-TXT-001" className="field-label">모드</legend>
           <div className="flex flex-wrap gap-4">
-            {THEME_MODES.map((m) => <Radio key={m} name="mode" label={MODE_LABEL[m]} checked={theme === m} onChange={() => applyMode(m)} />)}
+            {THEME_MODES.map((m, idx) => (
+              <Radio
+                key={m}
+                data-ui-id={`SET-BTN-00${idx + 1}`}
+                name="mode"
+                label={MODE_LABEL[m]}
+                checked={theme === m}
+                onChange={() => applyMode(m)}
+              />
+            ))}
           </div>
         </fieldset>
         <fieldset>
-          <legend className="field-label">강조 색상 (Accent)</legend>
+          <legend data-ui-id="SET-TXT-002" className="field-label">강조 색상 (Accent)</legend>
           <div className="flex flex-wrap gap-3">
-            {ACCENT_COLORS.map((a) => (
+            {ACCENT_COLORS.map((a, idx) => (
               <button
                 key={a}
                 type="button"
+                data-ui-id={`SET-BTN-00${4 + idx}`}
                 aria-pressed={accent === a}
                 aria-label={`강조 색상 ${ACCENT_LABEL[a]}`}
                 onClick={() => applyAccent(a)}
@@ -101,30 +111,30 @@ export default function SettingsPage(): ReactElement {
           </div>
         </fieldset>
         <div className="flex items-center gap-2">
-          <Button size="sm">미리보기 버튼</Button>
-          <span className="text-sm text-primary">강조 색상 텍스트</span>
+          <Button data-ui-id="SET-BTN-010" size="sm">미리보기 버튼</Button>
+          <span data-ui-id="SET-TXT-003" className="text-sm text-primary">강조 색상 텍스트</span>
         </div>
       </section>
 
-      <form className="card space-y-4" onSubmit={(e) => void saveProfile(e)} aria-label="기본 발신자 프로필">
-        <h2 className="font-semibold">기본 발신자 프로필</h2>
+      <form data-ui-id="SET-SEC-002" className="card space-y-4" onSubmit={(e) => void saveProfile(e)} aria-label="기본 발신자 프로필">
+        <h2 data-ui-id="SET-TIT-003" className="font-semibold">기본 발신자 프로필</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextField label="이메일 (로그인)" value={me.email} disabled />
-          <TextField label="이름" required value={me.name} onChange={(e) => setMe({ ...me, name: e.target.value })} />
-          <TextField label="회사명" value={me.company} onChange={(e) => setMe({ ...me, company: e.target.value })} />
-          <TextField label="기본 발신 번호" value={me.defaultSenderPhone} onChange={(e) => setMe({ ...me, defaultSenderPhone: e.target.value })} placeholder="010-0000-0000" />
-          <TextField label="기본 발신 이메일" type="email" value={me.defaultSenderEmail} onChange={(e) => setMe({ ...me, defaultSenderEmail: e.target.value })} />
+          <TextField data-ui-id="SET-INP-001" label="이메일 (로그인)" value={me.email} disabled />
+          <TextField data-ui-id="SET-INP-002" label="이름" required value={me.name} onChange={(e) => setMe({ ...me, name: e.target.value })} />
+          <TextField data-ui-id="SET-INP-003" label="회사명" value={me.company} onChange={(e) => setMe({ ...me, company: e.target.value })} />
+          <TextField data-ui-id="SET-INP-004" label="기본 발신 번호" value={me.defaultSenderPhone} onChange={(e) => setMe({ ...me, defaultSenderPhone: e.target.value })} placeholder="010-0000-0000" />
+          <TextField data-ui-id="SET-INP-005" label="기본 발신 이메일" type="email" value={me.defaultSenderEmail} onChange={(e) => setMe({ ...me, defaultSenderEmail: e.target.value })} />
         </div>
-        <Button type="submit" loading={saving === 'profile'}>프로필 저장</Button>
+        <Button data-ui-id="SET-BTN-011" type="submit" loading={saving === 'profile'}>프로필 저장</Button>
       </form>
 
-      <form className="card space-y-4" onSubmit={(e) => void changePw(e)} aria-label="비밀번호 변경">
-        <h2 className="font-semibold">비밀번호 변경</h2>
+      <form data-ui-id="SET-SEC-003" className="card space-y-4" onSubmit={(e) => void changePw(e)} aria-label="비밀번호 변경">
+        <h2 data-ui-id="SET-TIT-004" className="font-semibold">비밀번호 변경</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextField label="현재 비밀번호" type="password" required value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} autoComplete="current-password" />
-          <TextField label="새 비밀번호" type="password" required minLength={8} value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" />
+          <TextField data-ui-id="SET-INP-006" label="현재 비밀번호" type="password" required value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} autoComplete="current-password" />
+          <TextField data-ui-id="SET-INP-007" label="새 비밀번호" type="password" required minLength={8} value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} autoComplete="new-password" />
         </div>
-        <Button type="submit" variant="secondary" loading={saving === 'pw'}>비밀번호 변경</Button>
+        <Button data-ui-id="SET-BTN-012" type="submit" variant="secondary" loading={saving === 'pw'}>비밀번호 변경</Button>
       </form>
     </div>
   );

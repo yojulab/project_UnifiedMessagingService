@@ -42,12 +42,26 @@ export function Alert({ tone = 'info', children }: { tone?: 'info' | 'error' | '
   );
 }
 
-export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }): ReactElement {
+export function PageHeader({
+  title,
+  description,
+  actions,
+  titleUiId,
+  descUiId,
+  'data-ui-id': uiId,
+}: {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+  titleUiId?: string;
+  descUiId?: string;
+  'data-ui-id'?: string;
+}): ReactElement {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div data-ui-id={uiId} className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold">{title}</h1>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <h1 data-ui-id={titleUiId} className="text-2xl font-bold">{title}</h1>
+        {description && <p data-ui-id={descUiId} className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>

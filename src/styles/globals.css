@@ -88,26 +88,3 @@ body.show-ui-tags [data-ui-id] {
   outline-offset: 1px;
 }
 
-body.show-ui-tags [data-ui-id]:not(input):not(select):not(textarea):not(img):not(hr) {
-  position: relative;
-}
-
-body.show-ui-tags [data-ui-id]:not(input):not(select):not(textarea):not(img):not(hr)::after {
-  content: attr(data-ui-id);
-  position: absolute;
-  top: -10px;
-  left: 2px;
-  background-color: #7c3aed; /* violet-600 */
-  color: #ffffff;
-  font-size: 10px;
-  line-height: 1.2;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 4px;
-  z-index: 9999;
-  pointer-events: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  white-space: nowrap;
-  letter-spacing: -0.02em;
-}
