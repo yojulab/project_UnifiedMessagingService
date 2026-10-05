@@ -39,14 +39,14 @@ export function LoginForm(): ReactElement {
       <h2 className="text-lg font-semibold">로그인</h2>
       {params.get('registered') && <Alert tone="success">회원가입이 완료되었습니다. 로그인하세요.</Alert>}
       {error && <Alert tone="error">{error}</Alert>}
-      <TextField label="이메일" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-      <TextField label="비밀번호" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Button type="submit" className="w-full" loading={loading}>
+      <TextField data-ui-id="AUTH-INP-001" label="이메일" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      <TextField data-ui-id="AUTH-INP-002" label="비밀번호" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+      <Button data-ui-id="AUTH-BTN-001" type="submit" className="w-full" loading={loading}>
         로그인
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         계정이 없으신가요?{' '}
-        <Link href="/register" className="font-medium text-primary hover:underline">
+        <Link data-ui-id="AUTH-LNK-001" href="/register" className="font-medium text-primary hover:underline">
           회원가입
         </Link>
       </p>

@@ -48,3 +48,4 @@ next-env.d.ts
 /playwright-report/
 /e2e/.auth/
 /blob-report/
+.playwright-mcp/*

@@ -43,17 +43,17 @@ export default function RegisterPage(): ReactElement {
     <form onSubmit={onSubmit} className="space-y-4" aria-label="회원가입">
       <h2 className="text-lg font-semibold">회원가입</h2>
       {error && <Alert tone="error">{error}</Alert>}
-      <TextField label="이름" required value={form.name} onChange={set('name')} autoComplete="name" />
-      <TextField label="회사명" value={form.company} onChange={set('company')} autoComplete="organization" />
-      <TextField label="이메일" type="email" required value={form.email} onChange={set('email')} autoComplete="email" />
-      <TextField label="비밀번호" type="password" required minLength={8} value={form.password} onChange={set('password')} hint="8자 이상" autoComplete="new-password" />
-      <TextField label="비밀번호 확인" type="password" required value={form.confirm} onChange={set('confirm')} autoComplete="new-password" />
-      <Button type="submit" className="w-full" loading={loading}>
+      <TextField data-ui-id="AUTH-INP-003" label="이름" required value={form.name} onChange={set('name')} autoComplete="name" />
+      <TextField data-ui-id="AUTH-INP-004" label="회사명" value={form.company} onChange={set('company')} autoComplete="organization" />
+      <TextField data-ui-id="AUTH-INP-005" label="이메일" type="email" required value={form.email} onChange={set('email')} autoComplete="email" />
+      <TextField data-ui-id="AUTH-INP-006" label="비밀번호" type="password" required minLength={8} value={form.password} onChange={set('password')} hint="8자 이상" autoComplete="new-password" />
+      <TextField data-ui-id="AUTH-INP-007" label="비밀번호 확인" type="password" required value={form.confirm} onChange={set('confirm')} autoComplete="new-password" />
+      <Button data-ui-id="AUTH-BTN-002" type="submit" className="w-full" loading={loading}>
         가입하기
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         이미 계정이 있으신가요?{' '}
-        <Link href="/login" className="font-medium text-primary hover:underline">
+        <Link data-ui-id="AUTH-LNK-002" href="/login" className="font-medium text-primary hover:underline">
           로그인
         </Link>
       </p>

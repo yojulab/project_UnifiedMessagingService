@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: ReactNode }): React
           <p className="text-sm font-semibold text-primary">Unified Messaging</p>
           <h1 className="mt-1 text-2xl font-bold">{process.env.NEXT_PUBLIC_APP_NAME ?? '통합 메시징 서비스'}</h1>
         </div>
-        <div className="card">{children}</div>
+        <div data-ui-id="AUTH-SEC-001" className="card">{children}</div>
       </div>
     </main>
   );
