@@ -49,3 +49,7 @@ next-env.d.ts
 /e2e/.auth/
 /blob-report/
 .playwright-mcp/*
+
+# prompt history
+/docs/prompt_history.md
+docs/prompt_history*.md
